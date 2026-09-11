@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JTNP HOME HERO — YouTube Full-Screen Prototype</title>
+
+<!--
+  JTNP HOME HERO — YouTube full-screen background prototype
+  -----------------------------------------------------------------------
+  STANDALONE PROTOTYPE ONLY. Not part of the WordPress theme. Nothing in
+  this directory is wired into lightning-child; it exists purely so the
+  HERO-as-video concept can be reviewed in a browser before any decision
+  is made about porting it into the theme.
+
+  Reference (Source of Truth, read-only, not modified):
+    JTNP_Lightning_Child_0.9.20_wpml-final-live-test_20260905.zip
+    - template-parts/jtnp/national/hero.php   (current HOME Hero Slider)
+    - template-parts/jtnp/appbar.php          (current App Bar, shared)
+    - assets/css/jtnp-national.css            (.jtnp-national-hero / .hs-*)
+    - assets/css/jtnp-area.css                (.appbar / .ab-* / tokens / .btn)
+
+  Text content, fonts, colors and spacing below intentionally mirror the
+  current Slide 1 (“JAPAN”) Hero content and the current App Bar, per the
+  brief. The transparent→dark App Bar scroll behaviour is NEW for this
+  prototype (the production App Bar is currently always dark) — it exists
+  here only to demonstrate the requested overlay effect.
+-->
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- =======================================================================
+     HERO — full-bleed YouTube background, fullscreen first view
+     Layer order (back to front):
+       1. fallback / poster (gold-tinted gradient, matches .jtnp-img-missing)
+       2. YouTube iframe (cover-cropped, centered, pointer-events:none)
+       3. dark overlay (readability gradient)
+       4. hero center text
+       5. App Bar (separate section below, z-index above hero)
+     ======================================================================= -->
+<section class="hero" data-hero>
+
+  <!-- 1. Fallback / poster layer. Shown immediately, stays visible until the
+       iframe reports it has loaded, and reappears automatically whenever the
+       video is hidden (reduced-motion, slow connection, iframe failure). The
+       current theme has no uploaded Hero photo yet (.jtnp-img-missing design
+       placeholder is what actually renders live today), so this prototype
+       reuses that exact gold-tinted gradient rather than inventing a new
+       placeholder. -->
+  <div class="hero-fallback" data-hero-fallback aria-hidden="true"></div>
+
+  <!-- 2. YouTube background video. decorative only: no title text, no focus,
+       no pointer interaction. Sized larger than the viewport on whichever
+       axis is needed so the 16:9 frame always covers the viewport with no
+       letterboxing, then centered with translate(-50%,-50%). -->
+  <div class="hero-video" data-hero-video aria-hidden="true">
+    <iframe
+      data-hero-iframe
+      src=""
+      data-src="https://www.youtube.com/embed/wGupxN7yHWI?autoplay=1&mute=1&loop=1&playlist=wGupxN7yHWI&controls=0&playsinline=1&rel=0&modestbranding=1&disablekb=1&iv_load_policy=3&enablejsapi=0"
+      title=""
+      tabindex="-1"
+      aria-hidden="true"
+      allow="autoplay; encrypted-media"
+      frameborder="0"
+    ></iframe>
+  </div>
+
+  <!-- 3. Dark overlay — readability only, not a design change. Tuned close
+       to .jtnp-national-hero .hs-fade's bottom-weighted gradient, just a
+       touch stronger overall since there is no slide-level .hs-fade behind
+       the text here. -->
+  <div class="hero-overlay" aria-hidden="true"></div>
+
+  <!-- 4. Hero center text — same copy, DOM order and roles as the current
+       Slide 1 (JAPAN) markup in template-parts/jtnp/national/hero.php:
+       eyebrow → h1(JP) → EN → lead → CTA. -->
+  <div class="hero-text">
+    <p class="eyebrow">A Journey Through Japan</p>
+    <h1 class="hero-jp">日本</h1>
+    <p class="hero-en">JAPAN</p>
+    <p class="hero-lead">日本全国の観光地を、1本のスプーンから。</p>
+    <a class="btn primary hero-cta" href="#prototype-content">地図から探す</a>
+  </div>
+
+</section>
+
+<!-- =======================================================================
+     App Bar — overlays the Hero; transparent at top, dark after scroll.
+     Markup mirrors template-parts/jtnp/appbar.php's structure (.appbar /
+     .ab-left / .ab-nav / .ab-right) with representative labels; it is not a
+     feature-complete rebuild (no language switcher logic, no WPML), just
+     enough to judge the overlay look against the video.
+     ======================================================================= -->
+<header class="appbar" data-appbar>
+  <div class="ab-left">
+    <a class="jtnp" href="#" aria-label="JTNP ホーム">JTNP</a>
+  </div>
+
+  <ul class="ab-nav" id="proto-ab-nav" data-nav>
+    <li><a href="#prototype-content">地図から探す</a></li>
+    <li><a href="#prototype-content">エリア一覧</a></li>
+    <li><a href="#prototype-content">お知らせ</a></li>
+    <li><a href="#prototype-content">サイトについて</a></li>
+  </ul>
+
+  <div class="ab-right">
+    <a class="ab-lang" href="#" aria-label="English">EN</a>
+    <a class="btn primary sm ab-join" href="#prototype-content">会員登録</a>
+    <a class="btn text ab-login" href="#prototype-content">ログイン</a>
+    <button
+      type="button"
+      class="ab-navtoggle"
+      data-nav-toggle
+      aria-expanded="false"
+      aria-controls="proto-ab-nav"
+      aria-label="メニューを開く"
+      data-label-open="メニューを開く"
+      data-label-close="メニューを閉じる"
+    >☰</button>
+  </div>
+</header>
+
+<!-- =======================================================================
+     Dummy content below the fold — scroll target only, to confirm the App
+     Bar's transparent → dark transition. Not a reproduction of the real
+     HOME sections (News / About / Explore / Collection / SNS / Member / B2B
+     / Footer) — those are untouched production content and out of scope.
+     ======================================================================= -->
+<section class="prototype-content" id="prototype-content">
+  <h2>Scroll check section</h2>
+  <p>このセクションはApp Barのtransparent → dark切り替え確認用のダミーです。本番のHOMEセクション（News / About / Explore / Collectionなど）はこのプロトタイプには含まれていません。</p>
+  <p>Scroll back to the top to see the App Bar return to transparent over the video.</p>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
