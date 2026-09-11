@@ -78,6 +78,16 @@
   min-height: 480px;
 }
 
+/* Remove production's own decorative gold/teal double inner border
+   (assets/css/jtnp-area.css .hero-frame + .hero-frame::after) for the KOBE
+   HERO only — scoped to .jtnp-kobe-hero-blk so no other Area Page / HOME
+   HERO is affected. No layout property (padding/margin/size/position) of
+   the HERO itself is touched, only this decorative element is hidden. */
+.jtnp-kobe-hero-blk .hero-frame,
+.jtnp-kobe-hero-blk .hero-frame::after {
+  display: none;
+}
+
 /* ---- HTML5 video layer, cover-cropped, centered ------------------------- */
 .hero-video-el {
   position: absolute;
