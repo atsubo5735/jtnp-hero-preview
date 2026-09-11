@@ -1,0 +1,208 @@
+/* ===========================================================================
+   JTNP HOME prototype — HERO / App-Bar-over-HERO override
+   ---------------------------------------------------------------------------
+   The ONLY new CSS in this prototype. Everything else on the page is styled
+   by the theme's own, unmodified assets/css/jtnp-area.css + jtnp-national.css
+   (copied verbatim from the Source of Truth ZIP). This file touches ONLY:
+
+     1. The HERO section — full-screen YouTube video background instead of
+        the Hero Slider's static image, same text classes/content.
+     2. The App Bar — transparent while over the HERO, the theme's own
+        existing dark gradient (copied 1:1 from .jtnp-area-page .appbar
+        below) once scrolled past it.
+
+   No other Global Component's selectors are touched here.
+   =========================================================================== */
+
+/* ------------------------------------------------------------- App Bar --- */
+/* Production's .jtnp-appbar-blk is already `position: sticky; top:0;
+   z-index:40` (assets/css/jtnp-area.css) — kept completely unchanged here,
+   deliberately NOT switched to `position: fixed`, so the App Bar keeps
+   resolving against the exact same containing-block/scroll-container the
+   theme's own extensive comments there already worked out (.jtnp-area's
+   overflow-x:clip, WP admin-bar offsets, etc.).
+   To sit OVER the HERO instead of pushing it down, the App Bar's own
+   rendered height (measured by assets/js/hero.js and written to
+   --jtnp-appbar-h) is pulled back with a negative bottom margin, so the
+   very next section (the HERO) starts at the same y=0 the App Bar's own
+   box starts at — a plain visual overlap, not a positioning-scheme change.
+   Sticky's normal "stay pinned while scrolling" behaviour is completely
+   unaffected. */
+.jtnp-area-page .jtnp-appbar-blk {
+  margin-bottom: calc(-1 * var(--jtnp-appbar-h, 62px));
+}
+
+.jtnp-area-page .appbar {
+  /* Transparent starting state — replaces production's always-on dark
+     gradient background ONLY for this initial, over-the-HERO state. */
+  background: transparent;
+  border-bottom-color: transparent;
+  transition: background .25s ease, border-color .25s ease;
+}
+
+/* Scrolled state — the THEME'S OWN existing dark App Bar background
+   (assets/css/jtnp-area.css's own .jtnp-area-page .appbar rule), applied
+   here once JS (assets/js/hero.js) marks the bar scrolled. Not a new design —
+   the exact same gradient/border production already shows on every page at
+   rest. */
+.jtnp-area-page .appbar[data-jtnp-scrolled] {
+  background: linear-gradient(180deg, rgba(3, 6, 14, .96), rgba(3, 6, 14, .86));
+  border-bottom-color: var(--jtnp-divider);
+}
+
+/* The App Bar no longer reserves flow height (fixed, not sticky/static), so
+   every section it used to sit above needs its own scroll-margin-top for
+   in-page anchor links (#jtnp-news etc., the App Bar's own nav + Footer
+   links) to land below the fixed bar instead of underneath it. Matches the
+   App Bar's own rendered height at each tier (see its own CSS comment:
+   ~60px Mobile, ~68px Tablet, ~74px Desktop). */
+#jtnp-news,
+#jtnp-about,
+#jtnp-explore,
+#jtnp-collection,
+#jtnp-member {
+  scroll-margin-top: 64px;
+}
+
+@media (min-width: 576px) {
+  #jtnp-news,
+  #jtnp-about,
+  #jtnp-explore,
+  #jtnp-collection,
+  #jtnp-member {
+    scroll-margin-top: 72px;
+  }
+}
+
+@media (min-width: 992px) {
+  #jtnp-news,
+  #jtnp-about,
+  #jtnp-explore,
+  #jtnp-collection,
+  #jtnp-member {
+    scroll-margin-top: 80px;
+  }
+}
+
+/* ------------------------------------------------------------------ HERO */
+/* Full-viewport HERO frame for the video, replacing the Hero Slider's own
+   capped clamp() heights (460px-740px) — the brief's own full-bleed/
+   full-viewport requirement for the video background. Text content, fonts
+   and CTA below stay the theme's own .hs-jp/.hs-en/.hs-lead/.hs-cta classes
+   and copy, just re-centered for a single full-screen frame instead of a
+   bottom-anchored multi-slide strip. */
+.jtnp-hero-video-blk .hs-slides {
+  height: 100vh;
+  height: 100svh; /* ignores the mobile toolbar show/hide jump */
+  min-height: 480px;
+}
+
+.jtnp-hero-video-blk .hs-slide {
+  /* Always the single, already-active frame — no slider transition needed. */
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---- 1. fallback / poster ------------------------------------------------ */
+/* Shown immediately and until the YouTube Player API reports state PLAYING;
+   reappears automatically if the video is ever hidden again (autoplay
+   blocked, reduced motion). Matches the theme's own .jtnp-img-missing
+   gold-tinted placeholder gradient — the same "no photo yet" look the live
+   Hero Slider already falls back to — rather than a new placeholder design. */
+.hero-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(130% 150% at 18% -10%, rgba(223, 180, 60, .13), transparent 58%),
+    linear-gradient(158deg, #0C1220 0%, #070B14 55%, var(--jtnp-bg) 100%);
+  transition: opacity .5s ease;
+}
+
+.hero-video-slide[data-video-ready] .hero-fallback {
+  opacity: 0;
+}
+
+/* ---- 2. YouTube video layer, cover-cropped, centered, no pointer events - */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none; /* decorative only, never intercepts taps/clicks */
+  opacity: 0;
+  transition: opacity .6s ease;
+}
+
+.hero-video-slide[data-video-ready] .hero-video {
+  opacity: 1;
+}
+
+/* The Player API's own iframe is created inside #jtnp-hero-yt by
+   assets/js/hero.js; sizing (cover-crop math) is computed there and applied
+   as inline width/height/transform on the iframe itself, matching this same
+   centered-cover technique. These are just safe non-JS fallbacks. */
+#jtnp-hero-yt {
+  position: absolute;
+  inset: 0;
+}
+
+#jtnp-hero-yt iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 177.78vh;
+  height: 56.25vw;
+  min-width: 100vw;
+  min-height: 100svh;
+  transform: translate(-50%, -50%);
+  border: 0;
+  pointer-events: none;
+}
+
+/* ---- hero text: re-centered for a single full-screen frame -------------- */
+.jtnp-hero-video-blk .hs-text {
+  position: absolute;
+  inset: 0;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 9px;
+  z-index: 2;
+}
+
+@media (min-width: 992px) {
+  .jtnp-hero-video-blk .hs-text {
+    padding: 0 20px;
+  }
+}
+
+.jtnp-hero-video-blk .hs-lead {
+  max-width: 34ch;
+}
+
+@media (min-width: 992px) {
+  .jtnp-hero-video-blk .hs-lead {
+    max-width: 44ch;
+  }
+}
+
+.jtnp-hero-video-blk .hs-cta {
+  margin-top: 6px;
+}
+
+/* prefers-reduced-motion: never request the embed; keep the fallback as the
+   permanent background instead (assets/js/hero.js also skips loadHeroVideo()
+   under this same query, as a second, independent guard). */
+@media (prefers-reduced-motion: reduce) {
+  .hero-video {
+    display: none;
+  }
+
+  .hero-fallback {
+    opacity: 1 !important;
+  }
+}

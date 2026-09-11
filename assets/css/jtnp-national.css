@@ -1,0 +1,739 @@
+@charset "UTF-8";
+/* ===========================================================================
+   JTNP National Top — https://jtnp-souvenir.com/
+   ---------------------------------------------------------------------------
+   Ported from design/JTNP_JapanTOP_HiFi_ja.html (the confirmed source of
+   truth for this page). Loads only on the national top
+   (inc/jtnp-national-assets.php, jtnp_is_national_top()) and depends on
+   assets/css/jtnp-area.css, which supplies the Global Component styles
+   shared with every JTNP Area Page (tokens, App Bar, Buttons, News, Official
+   SNS, Footer) and the .jtnp-area-page scope.
+
+   Every selector here is additionally scoped .jtnp-national-top (the extra
+   body class jtnp_area_body_class() adds only on this page), so nothing in
+   this file can ever match a JTNP Area Page even though both share
+   .jtnp-area-page.
+
+   Breakpoints match the rest of the site exactly (Mobile < 576, Tablet
+   576–991, Desktop >= 992, >= 1200 refinement-only) — the design's
+   `@container wf (min-width: …)` become plain `@media (min-width: …)` with
+   identical bodies, the same 1:1 conversion jtnp-area.css itself documents.
+   =========================================================================== */
+
+.jtnp-national-top .jtnp-area {
+  overflow-x: clip; /* horizontal overflow confined to .rail / .medals */
+}
+
+/* --------------------------------------------------------------- sections */
+.jtnp-national-top .sec {
+  padding: 44px 20px 46px;
+}
+
+@media (min-width: 576px) {
+  .jtnp-national-top .sec {
+    padding: 64px var(--jtnp-pad, max(32px, calc((100% - 1200px) / 2))) 68px;
+  }
+}
+
+@media (min-width: 992px) {
+  .jtnp-national-top .sec {
+    padding: 80px var(--jtnp-pad, max(32px, calc((100% - 1200px) / 2))) 84px;
+  }
+}
+
+/* ---------------------------------------------------------- hero slider */
+.jtnp-national-hero {
+  position: relative;
+  border-bottom: 1px solid var(--jtnp-divider);
+  overflow: hidden;
+  background: var(--jtnp-bg);
+}
+
+/* Hero hierarchy (0.7.1 brief §5/§6): the national top's Hero is the Japan
+   Discovery Hub's Main Entrance and is deliberately the largest, strongest
+   Hero on the site — a JTNP Area Page's own Hero
+   (.jtnp-area-page .hero in assets/css/jtnp-area.css) is one step smaller at
+   every tier on purpose. Compare the two side by side rather than reading
+   either in isolation. svh/vh fallback pairing as in .hero — see its comment
+   for why. */
+.jtnp-national-hero .hs-slides {
+  position: relative;
+  height: 70vh;
+  height: 70svh;
+  min-height: 460px;
+}
+
+@media (min-width: 576px) {
+  .jtnp-national-hero .hs-slides {
+    height: clamp(520px, 64vh, 620px);
+  }
+}
+
+@media (min-width: 992px) {
+  .jtnp-national-hero .hs-slides {
+    height: clamp(560px, 76vh, 740px);
+  }
+}
+
+.jtnp-national-hero .hs-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .5s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.jtnp-national-hero .hs-slide.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 1;
+}
+
+.jtnp-national-hero .hs-pic {
+  display: contents;
+}
+
+.jtnp-national-hero .hs-img {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+
+/* Design-matching gold-tinted gradient placeholder — shown until the real
+   Hero photos (jtnp-home-hero-{japan|kobe}-{desktop|mobile}) are uploaded to
+   the Media Library. jtnp_the_image() already degrades to .jtnp-img-missing
+   on its own; this only restyles that degraded state for the Hero slot. */
+.jtnp-national-hero .jtnp-img-missing {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(130% 150% at 18% -10%, rgba(223, 180, 60, .13), transparent 58%),
+    linear-gradient(158deg, #0C1220 0%, #070B14 55%, var(--jtnp-bg) 100%);
+}
+
+.jtnp-national-hero .hs-slide[data-jtnp-slide-index="1"] .jtnp-img-missing {
+  background:
+    radial-gradient(140% 120% at 82% 8%, rgba(53, 198, 198, .10), transparent 55%),
+    radial-gradient(120% 140% at 10% 100%, rgba(223, 180, 60, .16), transparent 60%),
+    linear-gradient(158deg, #0C1220 0%, #070B14 55%, var(--jtnp-bg) 100%);
+}
+
+.jtnp-national-hero .hs-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(3, 6, 14, 0) 32%, rgba(3, 6, 14, .55) 68%, rgba(3, 6, 14, .94) 100%);
+}
+
+.jtnp-national-hero .hs-text {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 0 20px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  align-items: flex-start;
+  z-index: 2;
+}
+
+@media (min-width: 992px) {
+  .jtnp-national-hero .hs-text {
+    padding: 0 var(--jtnp-pad, max(32px, calc((100% - 1200px) / 2))) 56px;
+  }
+}
+
+/* Display XL — the national top's Hero headline, the largest text on the
+   site (0.7.1 brief §8/§9). One .hs-jp per slide, but only the first (the
+   page's actual H1 — see template-parts/jtnp/national/hero.php) uses this
+   size at rest; the rest is identical whichever slide is active. Compare
+   against Display L, .hero-jp/.hero-en in assets/css/jtnp-area.css — kept
+   deliberately smaller at every tier. */
+.jtnp-national-hero .hs-jp {
+  font-family: var(--jtnp-fjp);
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  margin: 0;
+  color: var(--jtnp-tx);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, .5);
+}
+
+.jtnp-national-hero .hs-en {
+  font-family: var(--jtnp-fdisp);
+  font-size: 14px;
+  letter-spacing: .34em;
+  margin: 0;
+  color: var(--jtnp-tx2);
+}
+
+@media (min-width: 576px) {
+  .jtnp-national-hero .hs-jp {
+    font-size: 62px;
+  }
+
+  .jtnp-national-hero .hs-en {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 992px) {
+  .jtnp-national-hero .hs-jp {
+    font-size: 86px;
+  }
+
+  .jtnp-national-hero .hs-en {
+    font-size: 20px;
+  }
+}
+
+.jtnp-national-hero .hs-lead {
+  margin: 0;
+  color: var(--jtnp-tx2);
+  font-size: 13px;
+  max-width: 34ch;
+}
+
+@media (min-width: 992px) {
+  .jtnp-national-hero .hs-lead {
+    font-size: 15px;
+    max-width: 44ch;
+  }
+}
+
+.jtnp-national-hero .hs-cta {
+  margin-top: 6px;
+}
+
+.jtnp-national-hero .hs-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 3px;
+  z-index: 3;
+}
+
+@media (min-width: 992px) {
+  .jtnp-national-hero .hs-dots {
+    bottom: 24px;
+  }
+}
+
+.jtnp-national-hero .hs-dot {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  appearance: none;
+}
+
+.jtnp-national-hero .hs-dot::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .35);
+  display: block;
+  transition: width .25s, background .25s, border-radius .25s;
+}
+
+.jtnp-national-hero .hs-dot.active::after {
+  background: linear-gradient(90deg, var(--jtnp-gold-hi), var(--jtnp-gold));
+  width: 22px;
+  border-radius: 4px;
+}
+
+.jtnp-national-hero .hs-dot:focus-visible {
+  outline: 2px solid var(--jtnp-gold-hi);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.jtnp-national-hero .hs-swipe {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 2;
+  font-family: var(--jtnp-mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  color: rgba(255, 255, 255, .75);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(3, 6, 14, .55);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 999px;
+  padding: 6px 10px 6px 8px;
+}
+
+@media (min-width: 576px) {
+  .jtnp-national-hero .hs-swipe {
+    display: none;
+  }
+}
+
+/* ----------------------------------------------------- about / journey
+   3-step visual user journey (SNS-ABOUT-JOURNEY-1): 01 BUY → 02 SCAN &
+   DISCOVER → 03 REGISTER & COLLECT (template-parts/jtnp/national/about.php).
+   Replaces the previous text-only .wf-steps 3-column explainer.
+
+   Stacked (01 → 02 → 03, top to bottom) through Tablet and switched to a
+   horizontal 3-column row only at Desktop (>=992px, this site's confirmed
+   "layout starts here" tier — docs:/IMPLEMENTATION_HANDOFF.md §10) rather
+   than at the 576px tier .wf-steps used: Step 02's mock UI (spoon+QR tag,
+   scan beam, phone) needs more than a ~180px-wide Tablet column to stay the
+   easiest of the three to read at a glance, which is the one hard
+   requirement on this section's redesign. */
+.jtnp-national-about .about-lead {
+  max-width: 60ch;
+}
+
+.jtnp-national-about .journey {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 28px;
+}
+
+@media (min-width: 992px) {
+  .jtnp-national-about .journey {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.jtnp-national-about .jstep {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 18px 20px;
+  border: 1px solid var(--jtnp-divider);
+  border-radius: var(--jtnp-r);
+  background: linear-gradient(180deg, rgba(223, 180, 60, .035), transparent);
+  transition: transform .25s ease, border-color .25s ease;
+}
+
+.jtnp-national-about .jstep:hover {
+  transform: translateY(-2px);
+  border-color: var(--jtnp-gold-border);
+}
+
+/* connector between steps — numbers/line only, no busy flow-diagram arrows.
+   Full-strength gold-hi (no opacity dimming) so the 01→02→03 read stays
+   clear at a glance — design-review pass, SNS-ABOUT-DESIGN-POLISH-1. */
+.jtnp-national-about .jstep-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  height: 22px;
+  color: var(--jtnp-gold-hi);
+}
+
+@media (min-width: 992px) {
+  .jtnp-national-about .jstep-arrow {
+    height: auto;
+    width: 34px;
+  }
+
+  .jtnp-national-about .jstep-arrow .i {
+    transform: rotate(-90deg);
+  }
+}
+
+.jtnp-national-about .jstep-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: calc(var(--jtnp-r) - 5px);
+  overflow: hidden;
+  background: transparent;
+  border: none;
+}
+
+.jtnp-national-about .jstep-media .rimg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: transparent;
+}
+
+/* Design-review pass (SNS-ABOUT-DESIGN-POLISH-1): the per-step English
+   eyebrow label (BUY / SCAN & DISCOVER / REGISTER & COLLECT) is no longer
+   rendered between the number and the title (see about.php) — the site's
+   existing gold accent now goes on the number itself instead, both to fill
+   the hierarchy gap that left and to make 01/02/03 easier to pick out at a
+   glance, which was the actual point of the request. */
+.jtnp-national-about .jstep-no {
+  font-family: var(--jtnp-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  color: var(--jtnp-gold);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.jtnp-national-about .jstep-t {
+  font-family: var(--jtnp-fdisp);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.35;
+  letter-spacing: .02em;
+  color: var(--jtnp-tx);
+  margin: 0 0 6px;
+}
+
+.jtnp-national-about .jstep-d {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--jtnp-tx2);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------- mock UI —
+   CSS-only placeholder diagrams shown while a step's Media Library
+   attachment ('jtnp-about-{buy|scan|collect}') does not exist yet. Purely
+   decorative (about.php marks the wrapper role="img" with the real alt
+   text and every icon inside aria-hidden), replaced automatically by the
+   real photo the moment that attachment is uploaded — see about.php. */
+.jtnp-national-about .jstep-mock {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--jtnp-tx2);
+}
+
+.jtnp-national-about .jstep-mock .i {
+  display: block;
+}
+
+/* -- 01 BUY: package + spoon ------------------------------------------- */
+.jtnp-national-about .mock-pack {
+  position: absolute;
+  top: 50%;
+  left: 44%;
+  width: 96px;
+  height: 72px;
+  transform: translate(-50%, -50%);
+  border-radius: 10px;
+  background: linear-gradient(155deg, rgba(223, 180, 60, .10), transparent);
+  border: 1px solid var(--jtnp-gold-border);
+}
+
+.jtnp-national-about .mock-pack::before,
+.jtnp-national-about .mock-pack::after {
+  content: "";
+  position: absolute;
+  background: var(--jtnp-gold-dim);
+}
+
+.jtnp-national-about .mock-pack::before {
+  inset: 0 0 0 50%;
+  width: 1px;
+}
+
+.jtnp-national-about .mock-pack::after {
+  inset: 50% 0 0 0;
+  height: 1px;
+}
+
+.jtnp-national-about .mock-spoon-buy {
+  position: absolute;
+  top: 26%;
+  right: 22%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  transform: rotate(-16deg);
+  background: radial-gradient(circle at 35% 30%, rgba(223, 180, 60, .30), rgba(3, 6, 14, .92));
+  border: 1px solid var(--jtnp-gold-border);
+  color: var(--jtnp-gold-hi);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .35);
+}
+
+/* -- 02 SCAN & DISCOVER: spoon's QR → phone ----------------------------- */
+.jtnp-national-about .mock-tag {
+  position: absolute;
+  top: 20%;
+  left: 12%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  background: rgba(3, 6, 14, .78);
+  border: 1px solid var(--jtnp-line);
+}
+
+.jtnp-national-about .mock-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(223, 180, 60, .16);
+  border: 1px solid var(--jtnp-gold-border);
+  color: var(--jtnp-gold-hi);
+  animation: jstep-pulse 2.6s ease-in-out infinite;
+}
+
+.jtnp-national-about .mock-beam {
+  position: absolute;
+  top: 40%;
+  left: 28%;
+  width: 46%;
+  height: 1px;
+  transform: rotate(24deg);
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--jtnp-gold-dim), var(--jtnp-teal-accent));
+  animation: jstep-beam 2.6s ease-in-out infinite;
+}
+
+.jtnp-national-about .mock-phone {
+  position: absolute;
+  bottom: 14%;
+  right: 14%;
+  width: 60px;
+  height: 96px;
+  color: var(--jtnp-tx2);
+}
+
+.jtnp-national-about .mock-phone > .i {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.jtnp-national-about .mock-phone-screen {
+  position: absolute;
+  inset: 11% 13%;
+  border-radius: 7px;
+  background: linear-gradient(160deg, rgba(53, 198, 198, .18), rgba(223, 180, 60, .10));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+}
+
+.jtnp-national-about .mock-phone-pin {
+  color: var(--jtnp-gold-hi);
+}
+
+.jtnp-national-about .mock-phone-line {
+  width: 68%;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(242, 244, 248, .35);
+}
+
+.jtnp-national-about .mock-phone-line.short {
+  width: 42%;
+}
+
+/* -- 03 REGISTER & COLLECT: spoon cards + progress ---------------------- */
+.jtnp-national-about .mock-cards {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.jtnp-national-about .mock-card {
+  width: 32px;
+  height: 44px;
+  border-radius: 6px;
+  background: linear-gradient(160deg, rgba(223, 180, 60, .16), transparent);
+  border: 1px solid var(--jtnp-gold-border);
+}
+
+.jtnp-national-about .mock-card.ghost {
+  border-style: dashed;
+  background: transparent;
+  opacity: .4;
+}
+
+.jtnp-national-about .mock-progress {
+  position: absolute;
+  bottom: 32%;
+  left: 18%;
+  right: 18%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--jtnp-surf2);
+  overflow: hidden;
+}
+
+.jtnp-national-about .mock-progress-fill {
+  display: block;
+  height: 100%;
+  width: 62%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--jtnp-gold), var(--jtnp-teal-accent));
+}
+
+/* Dashed pill + muted colour is the point — reads as "not decided yet" at a
+   glance, matching the description copy's "予定" (about.php / data layer's
+   docblock: the collection incentive itself is not confirmed). */
+.jtnp-national-about .mock-reward {
+  position: absolute;
+  bottom: 13%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--jtnp-mono);
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--jtnp-tx3);
+  border: 1px dashed var(--jtnp-line);
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
+@keyframes jstep-pulse {
+  0%, 100% { opacity: .7; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes jstep-beam {
+  0%, 100% { opacity: .35; }
+  50%      { opacity: .85; }
+}
+
+@media (min-width: 1200px) {
+  .jtnp-national-about .journey {
+    gap: 4px;
+  }
+
+  .jtnp-national-about .jstep {
+    padding: 22px 22px 24px;
+  }
+}
+
+
+/* --------------------------------------------------------------------- b2b */
+.jtnp-national-b2b .b2b {
+  position: relative;
+  border: 1px solid var(--jtnp-gold-border);
+  border-radius: 6px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 300px;
+}
+
+.jtnp-national-b2b .b2b-bg {
+  position: relative;
+  grid-row: 1;
+  grid-column: 1;
+  min-height: 300px;
+}
+
+.jtnp-national-b2b .b2b-pic {
+  display: contents;
+}
+
+.jtnp-national-b2b .b2b-img {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+
+.jtnp-national-b2b .jtnp-img-missing {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(130% 150% at 82% -10%, rgba(223, 180, 60, .16), transparent 58%),
+    linear-gradient(158deg, #0C1220 0%, #070B14 55%, var(--jtnp-bg) 100%);
+}
+
+.jtnp-national-b2b .b2b-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(3, 6, 14, .96) 0%, rgba(3, 6, 14, .82) 42%, rgba(3, 6, 14, .38) 78%, rgba(3, 6, 14, .10) 100%);
+}
+
+.jtnp-national-b2b .b2b-body {
+  position: relative;
+  z-index: 2;
+  grid-row: 1;
+  grid-column: 1;
+  align-self: end;
+  padding: 26px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.jtnp-national-b2b .b2b-body .body {
+  color: rgba(236, 239, 245, .86);
+}
+
+@media (min-width: 992px) {
+  .jtnp-national-b2b .b2b {
+    grid-template-columns: 1.1fr 1fr;
+    min-height: 380px;
+  }
+
+  .jtnp-national-b2b .b2b-bg {
+    grid-column: 2;
+    min-height: 380px;
+  }
+
+  .jtnp-national-b2b .b2b-overlay {
+    background: linear-gradient(100deg, rgba(3, 6, 14, 1) 0%, rgba(3, 6, 14, 1) 34%, rgba(3, 6, 14, .55) 58%, rgba(3, 6, 14, .06) 82%);
+  }
+
+  .jtnp-national-b2b .b2b-body {
+    grid-column: 1 / 2;
+    grid-row: 1;
+    align-self: center;
+    padding: 0 20px 0 44px;
+    max-width: 560px;
+  }
+}
+
+/* ------------------------------------------- Large Desktop refinement */
+@media (min-width: 1200px) {
+  .jtnp-national-hero .hs-dots {
+    bottom: 28px;
+  }
+}
+
+/* ------------------------------------------------------------- motion */
+@media (prefers-reduced-motion: reduce) {
+  .jtnp-national-top .jtnp-area *,
+  .jtnp-national-top .jtnp-area *::before,
+  .jtnp-national-top .jtnp-area *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

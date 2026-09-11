@@ -1,0 +1,3217 @@
+@charset "UTF-8";
+/* ===========================================================================
+   JTNP Area Page — Variant C / Hi-Fi
+   ---------------------------------------------------------------------------
+   Ported from design/JTNP_Kobe_Design_1.html (Variant C, Hi-Fi skin).
+
+   Three deliberate differences from the design file, all documented in the
+   handoff:
+
+   1. SCOPE. Every selector is prefixed with .jtnp-area-page, which is added to
+      <body> only on pages using the "JTNP Area Page" template. The design file
+      is a standalone document and styles bare html/body/img/a/table/*; none of
+      that is carried over unscoped. Nothing in this file can match on any other
+      page of the site.
+
+   2. BREAKPOINTS. The design authors its three tiers as
+      @container screen (min-width: …) purely so the 390/820/1440 renders can
+      sit side by side on one review page. Here they are plain
+      @media (min-width: …) with identical bodies — a 1:1 conversion, no rule
+      logic changed. The container-type/container-name declaration is dropped.
+
+        base            < 576px   Mobile
+        min-width:576   576–991   Tablet
+        min-width:992   >= 992    Desktop
+        min-width:1200  >= 1200   Large Desktop refinement ONLY
+
+   3. CUSTOM PROPERTIES. The design's property names (--bg, --tx, --gold, --r …)
+      are extremely generic and this stylesheet loads into a site that also runs
+      Lightning, VK Blocks, VK ExUnit and WPML. Every one is namespaced --jtnp-*
+      so it can neither be overwritten by, nor leak into, any of them.
+      (--teal in particular is defined by the Bootstrap bundled in Lightning's
+      _g2 tree.)
+
+   Collision notes from the read-only audit: .btn and .panel are the only design
+   class names that Lightning/VK also define. .panel is not used by Variant C
+   and its rules are not ported. .btn is — and .jtnp-area-page .btn (0,2,0)
+   outranks Lightning's Bootstrap-derived .btn (0,1,0) regardless of load order.
+   The stylesheet also declares a dependency on lightning-design-style, so it is
+   emitted afterwards as well. Belt and braces.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------- tokens */
+.jtnp-area-page {
+  --jtnp-bg: #03060E;
+  --jtnp-bg2: #070C18;
+  --jtnp-surf: rgba(255, 255, 255, .055);
+  --jtnp-surf2: rgba(255, 255, 255, .09);
+  --jtnp-line: rgba(255, 255, 255, .11);
+  --jtnp-gold: #DFB43C;
+  --jtnp-gold-hi: #F2D06B;
+  --jtnp-gold-dim: rgba(223, 180, 60, .40);
+  --jtnp-teal: rgba(53, 198, 198, .30);
+  --jtnp-tx: #F2F4F8;
+  --jtnp-tx2: rgba(242, 244, 248, .74);
+  --jtnp-tx3: rgba(242, 244, 248, .48);
+
+  /* ---- JTNP Global Design System tokens ----------------------------------
+     Added for the national-top build. These are the exact values confirmed
+     for Global Components shared with the national top (App Bar, Buttons,
+     News, Official SNS, Footer) and are used ONLY on those components' own
+     selectors below. Everything KOBE-specific and left unchanged by this
+     phase (Hero, Landmark, Official, Ranking, Instagram/influencer, Areas,
+     Japan band) keeps reading --jtnp-line / --jtnp-gold-dim exactly as
+     before, so this addition cannot shift any protected section's visuals. */
+  --jtnp-divider: rgba(223, 180, 60, .16);     /* Global Component divider */
+  --jtnp-gold-border: rgba(223, 180, 60, .36); /* Global Component border */
+  --jtnp-teal-accent: #35C6C6;                 /* Global teal-accent (solid) */
+
+  --jtnp-fdisp: 'Cinzel', 'Noto Serif JP', Georgia, serif;
+  --jtnp-fjp: 'Noto Serif JP', serif;
+  --jtnp-fb: 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  --jtnp-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --jtnp-r: 14px;
+}
+
+/* Page canvas. Lightning paints its own body background, so this has to be
+   stated explicitly or the dark design sits on a light ground. */
+body.jtnp-area-page {
+  background: var(--jtnp-bg);
+  color: var(--jtnp-tx);
+  font-family: var(--jtnp-fb);
+  font-size: 15px;
+  line-height: 1.7;
+  /* App Bar sticky fix: Lightning's own style.css sets `body, html {
+     overflow-x: hidden}` site-wide to block horizontal scroll. That leaves
+     overflow-y unset, and per the CSS Overflow spec's "either propagates"
+     rule (the same one .jtnp-area's own overflow-x:clip fix below quotes),
+     an axis left at 'visible' while its sibling is 'hidden' is silently
+     forced to 'auto' — so <body> itself becomes a CSS scroll container.
+     <html> already carries its own explicit overflow-x too, which blocks the
+     usual html/body propagation to the viewport, so <body> keeps that
+     used overflow-y:auto as a real box property rather than it applying to
+     the viewport. <body>'s box is always exactly as tall as its content
+     (nothing sets its height), so it never actually gains scrollable
+     overflow of its own — but position:sticky only cares whether an
+     ancestor IS a scroll container, not whether that container ever
+     scrolls, and a container that never scrolls holds every sticky
+     descendant at a permanent scrollTop of 0 (i.e. always "unstuck"). That
+     put .jtnp-appbar-blk's sticky positioning (line ~242 below) at the
+     mercy of <body> instead of the real viewport, so it never actually
+     pinned to the top on scroll. `overflow-x: clip` here keeps the exact
+     same horizontal-scroll prevention as Lightning's `hidden` (no visual
+     difference, no scrollbar, no programmatic scrollLeft) without coupling
+     overflow-y — restoring the viewport as the App Bar's sticky containing
+     block, exactly like .jtnp-area's own overflow-x:clip fix already does
+     one level down. Scoped to .jtnp-area-page only; every other page on the
+     site keeps Lightning's overflow-x:hidden untouched. */
+  overflow-x: clip;
+  overflow-y: visible;
+  /* 0.7.5 hotfix (News CMS runtime): on a short page (e.g. the Kobe-News
+     archive empty state) <body>'s box was only as tall as its content —
+     see the sticky-fix note above, "always exactly as tall as its
+     content" — so on a short page it ended before the bottom of the
+     viewport, exposing <html>'s default light background beneath. A page
+     that already has enough content to exceed one viewport (every page
+     today except an empty archive) is completely unaffected — min-height
+     only grows a box that would otherwise be shorter. Scoped to
+     .jtnp-area-page only, so no other page on the site is touched. */
+  min-height: 100vh;
+}
+
+/* box-sizing is scoped to the design wrapper rather than applied globally. */
+.jtnp-area-page .jtnp-area,
+.jtnp-area-page .jtnp-area *,
+.jtnp-area-page .jtnp-area *::before,
+.jtnp-area-page .jtnp-area *::after {
+  box-sizing: border-box;
+}
+
+.jtnp-area-page .jtnp-area {
+  background: var(--jtnp-bg);
+  /* Same short-page fix as body.jtnp-area-page above, belt-and-braces: this
+     is the element that actually paints the visible black canvas, so it
+     gets its own min-height too rather than relying on <body>'s box alone. */
+  min-height: 100vh;
+  overflow-x: clip; /* horizontal overflow is confined to .feed3 / .areas */
+  /* Found during 0.7.1's sticky App Bar audit: setting only overflow-x (with
+     overflow-y left unset) computes overflow-y to auto per the CSS Overflow
+     spec's "either propagates" rule — silently turning .jtnp-area into a
+     scroll container of its own. It never actually scrolls internally (its
+     height is auto, sized to its content; the <html>/<body> document is what
+     scrolls), but position:sticky descendants (.appbar) resolve against the
+     nearest ancestor scroll container regardless of whether that container's
+     own box ever overflows itself — so the App Bar silently behaved as
+     position:relative, scrolling away with the rest of the page, until this
+     was pinned back to visible. */
+  overflow-y: visible;
+}
+
+.jtnp-area-page .jtnp-area a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.jtnp-area-page .blk {
+  display: block;
+}
+
+.jtnp-area-page .sec {
+  padding: 44px 20px 46px;
+}
+
+.jtnp-area-page .eyebrow {
+  font-family: var(--jtnp-fdisp);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--jtnp-gold);
+  margin: 0 0 11px;
+}
+
+.jtnp-area-page .sec-t {
+  font-family: var(--jtnp-fdisp);
+  font-weight: 600;
+  font-size: 23px;
+  line-height: 1.25;
+  letter-spacing: .03em;
+  color: var(--jtnp-tx);
+  margin: 0 0 8px;
+}
+
+.jtnp-area-page .sec-s {
+  font-size: 12.5px;
+  color: var(--jtnp-tx3);
+  margin: 0 0 18px;
+  line-height: 1.6;
+}
+
+.jtnp-area-page .body {
+  font-size: 14.5px;
+  line-height: 1.78;
+  color: var(--jtnp-tx2);
+  margin: 16px 0 0;
+}
+
+.jtnp-area-page .note {
+  font-size: 11px;
+  color: var(--jtnp-tx3);
+  margin: 14px 0 0;
+  line-height: 1.6;
+}
+
+.jtnp-area-page .i {
+  flex: 0 0 auto;
+  vertical-align: -2px;
+}
+
+/* Media Library images. Beats Lightning's global img rule on specificity. */
+.jtnp-area-page .rimg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  background-color: var(--jtnp-surf2);
+  border-radius: var(--jtnp-r);
+  border: 0;
+  max-width: 100%;
+}
+
+/* Slot whose attachment is not in the Media Library yet — keeps the layout
+   measurable instead of collapsing or showing a broken image. */
+.jtnp-area-page .jtnp-img-missing {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: var(--jtnp-surf2);
+  border-radius: var(--jtnp-r);
+}
+
+.jtnp-area-page .hero-pic,
+.jtnp-area-page .jp-pic {
+  /* The <img> inside positions itself (.hero-img / .jp-img are
+     position:absolute; inset:0 within their section), so the wrapper only
+     needs to exist to hold the mobile <source> — it must not generate a box
+     of its own. */
+  display: contents;
+}
+
+.jtnp-area-page .landmark-pic {
+  /* Landmark is the opposite case: .sec-landmark > .photo is a CSS Grid item
+     at the tablet/desktop tiers (see the grid-area rules below), which only
+     works if .photo is an actual DOM child that generates a box — a
+     display:contents wrapper here would silently break that placement. So
+     this wrapper carries the "photo r16" positioning classes itself and
+     renders as a normal block box; the <img> inside is a plain .rimg that
+     fills it via width/height:100% + object-fit:cover, exactly as any other
+     .rimg does. See jtnp_the_responsive_image() in
+     inc/jtnp-template-tags.php for the full rationale. */
+  display: block;
+}
+
+/* -------------------------------------------------------------- app bar
+   Global Component — shared by the national top (front-page.php) and every
+   JTNP Area Page (page-jtnp-area.php): one markup, one CSS block, no
+   per-page variation at all since 0.7.1 (not even an Area Label on the left
+   — every JTNP page shows plain "JTNP", present and future).
+
+   Sticky at every breakpoint (0.7.1 brief §3): position:sticky needs no JS.
+   z-index just needs to clear this page's own content — nothing else on a
+   JTNP page goes above 4 (.hero-frame / .hero-body / .scrollcue) — so 40 is
+   deliberately not a "compete with everything" number.
+
+   position:sticky is on .jtnp-appbar-blk (the <section> — see
+   template-parts/jtnp/appbar.php), NOT on .appbar itself, even though .appbar
+   is the element that visually needs to stick. A sticky element can only
+   travel within the vertical span of its own containing block (normally its
+   parent), and .jtnp-appbar-blk's parent is .jtnp-area, which spans the
+   entire page — exactly the room a bar needs to stay stuck across a long
+   scroll. .appbar's own parent, .jtnp-appbar-blk, is only ever as tall as
+   .appbar itself (nothing else lives in that <section>): had sticky been put
+   there instead, the bar would have had zero effective room to stick within
+   and would scroll away with the rest of the page after only its own height
+   in scroll distance — caught during the 0.7.1 QA pass by testing an actual
+   scroll, not just the computed style. .ab-nav's Mobile/Tablet dropdown still
+   anchors correctly (position:absolute;top:100%) against .appbar, because
+   sticky/relative/etc. all equally establish a positioned containing block —
+   only the sticky *travel range* cares which element carries the property. */
+.jtnp-area-page .jtnp-appbar-blk {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.jtnp-area-page .appbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 18px; /* ~60px total height at Mobile */
+  background: linear-gradient(180deg, rgba(3, 6, 14, .96), rgba(3, 6, 14, .86));
+  border-bottom: 1px solid var(--jtnp-divider);
+}
+
+/* WordPress admin bar is position:fixed at the real viewport top, at every
+   width, and does not participate in this sticky element's own containing
+   block the way the <html> margin it adds does — so top:0 alone would tuck
+   the App Bar underneath it once the page scrolls. 782px matches WP core's
+   own admin-bar breakpoint (wp-admin/css/admin-bar.css), not a value chosen
+   here. */
+body.admin-bar .jtnp-area-page .jtnp-appbar-blk {
+  top: 32px;
+}
+
+@media (max-width: 782px) {
+  body.admin-bar .jtnp-area-page .jtnp-appbar-blk {
+    top: 46px;
+  }
+}
+
+.jtnp-area-page .jtnp {
+  font-family: var(--jtnp-fdisp);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: .1em;
+  color: var(--jtnp-tx);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.jtnp-area-page .ab-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Mobile/Tablet: a dropdown panel, closed by default, below the App Bar —
+   never squeezed into the top row (0.7.1 brief §4). Opened via
+   assets/js/jtnp-appbar.js toggling [data-open]; .appbar's own
+   position:sticky is what makes position:absolute here anchor correctly. */
+.jtnp-area-page .ab-nav {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 4px 18px 10px;
+  list-style: none;
+  background: linear-gradient(180deg, rgba(3, 6, 14, .98), rgba(3, 6, 14, .95));
+  border-bottom: 1px solid var(--jtnp-divider);
+  box-shadow: 0 14px 24px -14px rgba(0, 0, 0, .6);
+}
+
+.jtnp-area-page .ab-nav[data-open] {
+  display: flex;
+}
+
+.jtnp-area-page .ab-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--jtnp-fb);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--jtnp-tx2);
+  text-decoration: none;
+  border-top: 1px solid var(--jtnp-divider);
+}
+
+.jtnp-area-page .ab-nav li:first-child a {
+  border-top: none;
+}
+
+.jtnp-area-page .ab-nav a:hover,
+.jtnp-area-page .ab-nav a:focus-visible {
+  color: var(--jtnp-gold-hi);
+}
+
+.jtnp-area-page .ab-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  color: var(--jtnp-tx2);
+}
+
+/* Hamburger toggle. Hidden again at Desktop, where .ab-nav becomes the
+   always-visible inline row (see the >= 992px tier below). */
+.jtnp-area-page .ab-navtoggle {
+  position: relative; /* anchors the ::before hit-area below */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid var(--jtnp-divider);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--jtnp-tx2);
+  appearance: none;
+  cursor: pointer;
+}
+
+.jtnp-area-page .ab-navtoggle:hover,
+.jtnp-area-page .ab-navtoggle:focus-visible {
+  border-color: var(--jtnp-gold-border);
+  color: var(--jtnp-gold);
+}
+
+/* Global Accessibility Rule (44x44 minimum click/tap target — added after
+   0.7.1's own report understated .ab-login's real size, see .ab-login
+   below): visible size stays 36-40px everywhere (unchanged from the values
+   above); only the invisible hit-area grows, via a centred ::before that
+   does not affect layout (position:absolute), does not affect any sibling's
+   gap (no box of its own in flow), and is never smaller than the element's
+   own visible box on either axis (max(100%, 44px)) so it can only add area,
+   never cover less than what was already clickable. Clicking anywhere in
+   this pseudo-element's box registers as a click on its host — a pseudo-
+   element is not an independent hit-test target — so no JS is needed and no
+   existing href/onclick changes. .ab-lang and .ab-join both need this (their
+   own visible height is 33-38px depending on breakpoint); .ab-navtoggle
+   needs it on both axes (36x36 visible); .ab-login and every .ab-nav a
+   (Mobile/Tablet dropdown item) already compute to 44x44+ and are listed
+   here only as the audit trail for why they are NOT touched. */
+.jtnp-area-page .ab-lang::before,
+.jtnp-area-page .ab-join::before,
+.jtnp-area-page .ab-navtoggle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, 44px);
+  height: 44px;
+}
+
+/* App Bar anchor-jump offset (0.7.1 brief §28): with the App Bar now sticky,
+   an in-page jump to one of these four ids (App Bar Navigation / Footer
+   Navigation, both via jtnp_nav_url()) would otherwise land with the
+   section's own heading tucked directly under the bar. scroll-margin-top
+   values match the App Bar's own padding-driven height at each tier (~60px
+   Mobile per .appbar's comment above, ~68px Tablet, ~74px Desktop) plus a
+   little breathing room; the admin-bar override adds its height on top,
+   matching the same 782px breakpoint the App Bar's own sticky offset uses. */
+#jtnp-explore,
+#jtnp-collection,
+#jtnp-news,
+#jtnp-about {
+  scroll-margin-top: 72px;
+}
+
+body.admin-bar #jtnp-explore,
+body.admin-bar #jtnp-collection,
+body.admin-bar #jtnp-news,
+body.admin-bar #jtnp-about {
+  scroll-margin-top: 104px;
+}
+
+@media (max-width: 782px) {
+  body.admin-bar #jtnp-explore,
+  body.admin-bar #jtnp-collection,
+  body.admin-bar #jtnp-news,
+  body.admin-bar #jtnp-about {
+    scroll-margin-top: 118px;
+  }
+}
+
+@media (min-width: 992px) {
+  #jtnp-explore,
+  #jtnp-collection,
+  #jtnp-news,
+  #jtnp-about {
+    scroll-margin-top: 90px;
+  }
+
+  body.admin-bar #jtnp-explore,
+  body.admin-bar #jtnp-collection,
+  body.admin-bar #jtnp-news,
+  body.admin-bar #jtnp-about {
+    scroll-margin-top: 122px;
+  }
+}
+
+/* Rendered as <a> rather than the design's <button>: it is a real navigation
+   link whose href comes from WPML. Visual is unchanged. */
+.jtnp-area-page .ab-lang {
+  position: relative; /* anchors the ::before hit-area above */
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--jtnp-divider);
+  border-radius: 999px;
+  color: var(--jtnp-tx2);
+  font-family: var(--jtnp-fb);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  padding: 4px 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.jtnp-area-page .ab-lang:hover,
+.jtnp-area-page .ab-lang:focus-visible {
+  border-color: var(--jtnp-gold-border);
+  color: var(--jtnp-gold);
+}
+
+/* App Bar 会員登録 — Primary ButtonのSmallサイズ。
+   色・背景・borderは.btn.primaryを正本とし、ここではApp Bar固有の
+   sizing/spacingだけを扱う。 */
+.jtnp-area-page .ab-join {
+  position: relative; /* anchors the ::before hit-area above */
+  min-height: 36px;
+  padding: 0 15px;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+/* .ab-login's own min-height/min-width below were 36px until this audit —
+   dead values in practice, always beaten by the higher-specificity
+   .btn.text{min-height:44px;min-width:44px} it also carries (3 classes vs.
+   this rule's 2 — see the Button System, above). Written as 44px here too so
+   the source states the true, already-44x44 rendered size directly, rather
+   than depending on that cascade accident to keep reading correctly. No
+   ::before needed here: unlike .ab-lang/.ab-join/.ab-navtoggle, this one
+   never was smaller than 44x44 in the first place. */
+.jtnp-area-page .ab-login {
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 10.5px;
+  white-space: nowrap;
+  padding: 0 4px;
+  gap: 5px;
+}
+
+.jtnp-area-page .ab-login .i {
+  opacity: .8;
+}
+
+@media (max-width: 374.98px) {
+  /* Smallest supported phones: language pill sheds its label text, the
+     icon alone still carries the "current vs destination language"
+     meaning via aria-label. */
+  .jtnp-area-page .appbar {
+    gap: 6px;
+    padding: 12px 14px;
+  }
+
+  .jtnp-area-page .ab-join {
+    padding: 0 10px;
+  }
+}
+
+/* ----------------------------------------------------------------- hero */
+/* Hero hierarchy (0.7.1 brief §5/§6/§7): a JTNP Area Page's Hero is a
+   Destination page's opener — one step below the national top's Hero
+   (.jtnp-national-hero .hs-slides in assets/css/jtnp-national.css), which is
+   the Japan Discovery Hub's Main Entrance and is sized/typeset larger at
+   every tier on purpose. Compare the two side by side rather than reading
+   either in isolation. svh (with a vh fallback for browsers that do not
+   support it — the fallback is simply overridden, never used alongside it)
+   avoids the classic 100vh-jumps-when-the-mobile-toolbar-hides bug; the
+   Tablet/Desktop clamp()s below use vh since those viewports do not have a
+   comparable dynamic toolbar. */
+.jtnp-area-page .hero {
+  position: relative;
+  height: 60vh;
+  height: 60svh;
+  min-height: 420px;
+  overflow: hidden;
+  background: var(--jtnp-bg);
+}
+
+.jtnp-area-page .hero-img {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+
+.jtnp-area-page .hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(3, 6, 14, .70) 0%, rgba(3, 6, 14, .10) 26%, rgba(3, 6, 14, .62) 52%, rgba(3, 6, 14, .93) 78%, #03060E 100%);
+}
+
+.jtnp-area-page .hero-frame {
+  position: absolute;
+  inset: 16px;
+  border: 1px solid var(--jtnp-gold-dim);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.jtnp-area-page .hero-frame::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--jtnp-teal);
+}
+
+.jtnp-area-page .hero-body {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 88px;
+  z-index: 4;
+}
+
+/* Display L — Area Hero headline (one step below the national top's Display
+   XL, .hs-jp in assets/css/jtnp-national.css: 48/62/86px at the same three
+   tiers). KOBE's Art Direction (Cinzel gold-foil "KOBE" wordmark) is kept as
+   a modifier on top of this shared role — see the @supports block below —
+   not a reason to give it its own untracked scale. */
+.jtnp-area-page .hero-jp {
+  font-family: var(--jtnp-fjp);
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: .14em;
+  color: var(--jtnp-gold-hi);
+  margin: 0 0 6px;
+}
+
+.jtnp-area-page .hero-en {
+  font-family: var(--jtnp-fdisp);
+  font-weight: 600;
+  font-size: 44px;
+  line-height: .98;
+  letter-spacing: .06em;
+  margin: 0;
+  color: var(--jtnp-tx);
+}
+
+/* Gold foil gradient on the area name. Guarded by @supports so that a browser
+   without background-clip:text keeps the solid --jtnp-tx colour above rather
+   than rendering transparent text on a dark ground. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .jtnp-area-page .hero-en {
+    background: linear-gradient(100deg, #FFF6DF 12%, #EFCE79 42%, #FFFFFF 58%, #D8AE45 84%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+.jtnp-area-page .hero-sub {
+  font-family: var(--jtnp-fdisp);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .34em;
+  color: var(--jtnp-gold);
+  margin: 12px 0 0;
+}
+
+.jtnp-area-page .hero-lead {
+  font-size: 13.5px;
+  line-height: 1.72;
+  color: var(--jtnp-tx2);
+  margin: 15px 0 0;
+  max-width: 305px;
+}
+
+.jtnp-area-page .scrollcue {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  text-align: center;
+  z-index: 4;
+  font-family: var(--jtnp-fdisp);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .3em;
+  color: var(--jtnp-gold);
+}
+
+.jtnp-area-page .scrollcue i {
+  display: block;
+  width: 1px;
+  height: 26px;
+  margin: 9px auto 0;
+  background: linear-gradient(180deg, var(--jtnp-gold), transparent);
+}
+
+/* ------------------------------------------------------------- landmark */
+.jtnp-area-page .photo {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  margin: 6px 0 0;
+}
+
+.jtnp-area-page .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.jtnp-area-page .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--jtnp-tx2);
+  border: 1px solid var(--jtnp-line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: var(--jtnp-surf);
+}
+
+.jtnp-area-page .chip .i {
+  color: var(--jtnp-tx3);
+}
+
+.jtnp-area-page .btns {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+/* ===== Global Button System =====
+   .btn            = Secondary / Outline Button（副次CTA用）— base
+   .btn.primary / .btn.gold = Primary Button（主要CTA用・金グラデーション）
+   .btn.sm         = Small / Header Button（App Bar等のコンパクトなCTA用）
+   .btn.text       = Text Link（Navigation的な軽い導線用・タップ領域44px）
+   .btn — the one real collision with Lightning/VK. Scoped here at (0,2,0). */
+.jtnp-area-page .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 46px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-decoration: none;
+  padding: 0 22px;
+  text-align: center;
+  background: rgba(255, 255, 255, .02);
+  border: 1px solid var(--jtnp-gold-border);
+  font-family: var(--jtnp-fb);
+  color: var(--jtnp-tx);
+  transition: border-color .15s, background .15s, color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.jtnp-area-page .btn:hover,
+.jtnp-area-page .btn:focus-visible {
+  border-color: var(--jtnp-gold);
+  background: rgba(223, 180, 60, .06);
+  color: var(--jtnp-gold);
+}
+
+.jtnp-area-page .btn:focus-visible {
+  outline: 2px solid var(--jtnp-gold-hi);
+  outline-offset: 2px;
+}
+
+/* .ghost is the pre-existing Secondary alias. It intentionally has no visual
+   override: .btn and .btn.ghost use the exact same Default/Hover/Focus states. */
+
+.jtnp-area-page .btn.gold,
+.jtnp-area-page .btn.primary {
+  background: linear-gradient(180deg, var(--jtnp-gold-hi) 0%, var(--jtnp-gold) 62%, #C79A31 100%);
+  color: #160F02;
+  border-color: transparent;
+  font-weight: 700;
+  box-shadow: 0 10px 24px -12px rgba(223, 180, 60, .6);
+}
+
+.jtnp-area-page .btn.gold:hover,
+.jtnp-area-page .btn.primary:hover {
+  filter: brightness(1.06);
+  background: linear-gradient(180deg, var(--jtnp-gold-hi) 0%, var(--jtnp-gold) 62%, #C79A31 100%);
+  color: #160F02;
+}
+
+.jtnp-area-page .btn.sm {
+  min-height: 36px;
+  font-size: 11.5px;
+  padding: 0 16px;
+  gap: 5px;
+}
+
+/* .btn.sm grows to 38px at Desktop — see the >= 992px tier below. */
+
+/* Text Link — Login and other lightweight navigation-style CTAs. No pill,
+   no border; the 44px minimum keeps the tap target correct even though the
+   visible label is much smaller. */
+.jtnp-area-page .btn.text {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 2px;
+  border: none;
+  background: none;
+  border-radius: 0;
+  color: var(--jtnp-tx2);
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+}
+
+.jtnp-area-page .btn.text:hover,
+.jtnp-area-page .btn.text:focus-visible {
+  color: var(--jtnp-tx);
+  border-bottom-color: var(--jtnp-gold-border);
+  background: none;
+}
+
+.jtnp-area-page .btn[disabled],
+.jtnp-area-page .btn.disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.jtnp-area-page .btn.wide {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.jtnp-area-page button.btn {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* -------------------------------------------------------------- ranking */
+.jtnp-area-page .ranks {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 4px;
+}
+
+.jtnp-area-page .rank {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 10px 12px 10px 10px;
+  background: var(--jtnp-surf);
+  border: 1px solid var(--jtnp-line);
+  border-radius: var(--jtnp-r);
+  text-decoration: none;
+  color: var(--jtnp-tx);
+}
+
+.jtnp-area-page .rk {
+  font-family: var(--jtnp-fdisp);
+  font-weight: 700;
+  font-size: 27px;
+  line-height: 1;
+  width: 26px;
+  text-align: center;
+  flex: 0 0 auto;
+  color: var(--jtnp-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .jtnp-area-page .rk.r1,
+  .jtnp-area-page .rk.r2,
+  .jtnp-area-page .rk.r3 {
+    background: linear-gradient(160deg, #FFF3D4, #E4B846 46%, #9E7A22);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Ranks 4 and beyond are de-emphasised. Written as :not() on 1–3 rather than
+   listing r4/r5 so that ranks 6–10 inherit it automatically when the real data
+   arrives — no CSS change needed at that point. */
+.jtnp-area-page .rk:not(.r1):not(.r2):not(.r3) {
+  opacity: .5;
+}
+
+.jtnp-area-page .rk-i {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+}
+
+.jtnp-area-page .rk-b {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.jtnp-area-page .rk-b b {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: .01em;
+}
+
+.jtnp-area-page .rk-c {
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--jtnp-tx3);
+}
+
+.jtnp-area-page .rank .i {
+  color: var(--jtnp-tx3);
+}
+
+/* ------------------------------------------------------------- official */
+.jtnp-area-page .ext {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: var(--jtnp-surf);
+  border: 1px solid var(--jtnp-line);
+  border-radius: var(--jtnp-r);
+  text-decoration: none;
+  color: var(--jtnp-tx);
+  margin-bottom: 10px;
+}
+
+.jtnp-area-page .ext-b {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.jtnp-area-page .ext-b b {
+  font-size: 15px;
+  letter-spacing: .01em;
+}
+
+.jtnp-area-page .ext-b span {
+  font-size: 12px;
+  color: var(--jtnp-tx2);
+  line-height: 1.5;
+}
+
+.jtnp-area-page .dom {
+  font-family: var(--jtnp-mono);
+  font-size: 10.5px;
+  color: var(--jtnp-gold);
+  letter-spacing: .03em;
+}
+
+.jtnp-area-page .ext .i {
+  color: var(--jtnp-gold);
+}
+
+/* ----------------------------------------- influencer (Instagram B3) */
+.jtnp-area-page .igsec {
+  background: var(--jtnp-bg2);
+  border-top: 1px solid var(--jtnp-line);
+  border-bottom: 1px solid var(--jtnp-line);
+}
+
+.jtnp-area-page .igtop {
+  display: block;
+}
+
+.jtnp-area-page .igt {
+  margin: 0;
+}
+
+/* Rail Prev/Next: Tablet and up only — mobile is a vertical stack, not a rail.
+   These scroll .feed3 alone via scrollBy(); they never touch the Instagram
+   iframe or its internal carousel. */
+.jtnp-area-page .igctrl {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.jtnp-area-page .igprev,
+.jtnp-area-page .ignext {
+  appearance: none;
+  cursor: pointer;
+  padding: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--jtnp-gold-dim);
+  background: transparent;
+  color: var(--jtnp-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jtnp-area-page .igprev .i {
+  transform: rotate(180deg);
+}
+
+.jtnp-area-page .igprev:disabled,
+.jtnp-area-page .ignext:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.jtnp-area-page .grule {
+  display: block;
+  width: 34px;
+  height: 1px;
+  background: var(--jtnp-gold-dim);
+  margin: 14px 0 0;
+}
+
+.jtnp-area-page .igsub {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--jtnp-tx3);
+  margin: 14px 0 26px;
+}
+
+.jtnp-area-page .feed3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.jtnp-area-page .ig3 {
+  width: 326px;
+  max-width: 100%;
+}
+
+/* The outer blockquote box only. 540px is Instagram's own default max-width,
+   which stops a 9:16 Reel growing to ~1000px tall in a wide column; 326px is
+   their documented minimum and is never crossed. Nothing inside the iframe is
+   styled, cropped or overlaid. */
+.jtnp-area-page .ig3 .instagram-media {
+  margin: 0 auto !important;
+  max-width: 540px !important;
+  min-width: 326px !important;
+  width: 100% !important;
+}
+
+.jtnp-area-page .more3,
+.jtnp-area-page .more10 {
+  appearance: none;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 46px;
+  margin: 20px 0 0;
+  padding: 0;
+  color: var(--jtnp-gold);
+  font-family: var(--jtnp-fb);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.jtnp-area-page .more10 .i {
+  transition: transform .2s ease;
+}
+
+.jtnp-area-page .more10[aria-expanded="true"] .i {
+  transform: rotate(180deg);
+}
+
+/* Author-level .rank { display:flex } overrides the browser's default
+   [hidden] rule unless hidden is declared at the same cascade origin. */
+.jtnp-area-page .rank[hidden] {
+  display: none;
+}
+
+.jtnp-area-page .more3[hidden] {
+  display: none;
+}
+
+/* ----------------------------------------------------------------- news
+   Editorial hairline list at EVERY width — thumbnail | date+title | arrow.
+   Never a card grid; widening only scales the thumbnail and the type. */
+.jtnp-area-page .newslist {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--jtnp-divider);
+  border-top: 1px solid var(--jtnp-divider);
+  border-bottom: 1px solid var(--jtnp-divider);
+}
+
+.jtnp-area-page .news {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  padding: 13px 2px;
+  background: var(--jtnp-bg);
+  text-decoration: none;
+  color: var(--jtnp-tx);
+}
+
+/* Global News thumbnail: 58px Mobile/Tablet, 84px Desktop (see the 992px
+   tier below) — never a card grid, at any breakpoint. */
+.jtnp-area-page .nw-i {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  border-radius: 2px;
+}
+
+.jtnp-area-page .nw-b {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.jtnp-area-page .nw-d {
+  font-family: var(--jtnp-mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  color: var(--jtnp-gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Optional Area Badge metadata slot (national top only — see
+   template-parts/jtnp/news.php $show_badge). KOBE passes no badge. */
+.jtnp-area-page .nw-badge {
+  border: 1px solid var(--jtnp-gold-border);
+  color: var(--jtnp-gold);
+  border-radius: 2px;
+  padding: 1px 6px;
+  font-family: var(--jtnp-fb);
+  letter-spacing: 0;
+}
+
+.jtnp-area-page .nw-b b {
+  font-size: 13.5px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.jtnp-area-page .nw-a {
+  flex: 0 0 auto;
+  color: var(--jtnp-tx3);
+  display: flex;
+  align-items: center;
+}
+
+/* ------------------------------------------------ news CMS: breadcrumb
+   Shared by the News/Kobe-News archive and single templates. It stays in the
+   normal .sec content flow and reuses the Footer/App Bar text-link states. */
+.jtnp-area-page .jtnp-breadcrumb {
+  margin: 0 0 20px;
+  color: var(--jtnp-tx3);
+  font-family: var(--jtnp-fb);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.jtnp-area-page .jtnp-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jtnp-area-page .jtnp-breadcrumb li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.jtnp-area-page .jtnp-breadcrumb li + li::before {
+  content: '\203A';
+  flex: 0 0 auto;
+  color: var(--jtnp-tx3);
+}
+
+.jtnp-area-page .jtnp-breadcrumb a {
+  color: var(--jtnp-tx2);
+  text-decoration: none;
+}
+
+.jtnp-area-page .jtnp-breadcrumb a:hover,
+.jtnp-area-page .jtnp-breadcrumb a:focus-visible {
+  color: var(--jtnp-gold-hi);
+}
+
+.jtnp-area-page .jtnp-breadcrumb [aria-current="page"] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ------------------------------------------------ news CMS: pagination
+   category.php's the_posts_pagination() output (0.7.5 News CMS pass).
+   Standard core markup (nav.jtnp-pagination > .page-numbers), styled with
+   the same tokens as every other bordered control on the page — no new
+   colors, no new component. */
+.jtnp-area-page .jtnp-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 28px 0 0;
+}
+
+.jtnp-area-page .jtnp-pagination .page-numbers {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--jtnp-divider);
+  border-radius: var(--jtnp-r);
+  color: var(--jtnp-tx2);
+  font-family: var(--jtnp-fb);
+  font-size: 12.5px;
+  text-decoration: none;
+}
+
+.jtnp-area-page .jtnp-pagination a.page-numbers:hover,
+.jtnp-area-page .jtnp-pagination a.page-numbers:focus-visible {
+  border-color: var(--jtnp-gold-border);
+  color: var(--jtnp-gold);
+}
+
+.jtnp-area-page .jtnp-pagination .page-numbers.current {
+  border-color: var(--jtnp-gold-border);
+  color: var(--jtnp-gold-hi);
+}
+
+.jtnp-area-page .jtnp-pagination .page-numbers.dots {
+  border-color: transparent;
+  color: var(--jtnp-tx3);
+}
+
+/* ------------------------------------------------ news CMS: single post
+   single.php's article body (0.7.5 News CMS pass). .body already sets the
+   base paragraph type; these add just enough for the block editor's other
+   common elements (headings, links, lists, images, quotes) to read as part
+   of the same design instead of falling back to the browser/Lightning
+   default. Every color is one of the tokens already used elsewhere on this
+   page. */
+.jtnp-area-page .jtnp-news-single-date {
+  margin: 0 0 20px;
+}
+
+.jtnp-area-page .jtnp-news-single-body :is(h2, h3, h4) {
+  font-family: var(--jtnp-fdisp);
+  font-weight: 600;
+  color: var(--jtnp-tx);
+  line-height: 1.4;
+  margin: 1.6em 0 .6em;
+}
+
+.jtnp-area-page .jtnp-news-single-body :is(h2, h3, h4):first-child {
+  margin-top: 0;
+}
+
+.jtnp-area-page .jtnp-news-single-body p {
+  margin: 0 0 1em;
+}
+
+.jtnp-area-page .jtnp-news-single-body a {
+  color: var(--jtnp-gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.jtnp-area-page .jtnp-news-single-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--jtnp-r);
+}
+
+.jtnp-area-page .jtnp-news-single-body :is(ul, ol) {
+  padding-left: 1.4em;
+  margin: 0 0 1em;
+}
+
+.jtnp-area-page .jtnp-news-single-body li + li {
+  margin-top: .4em;
+}
+
+.jtnp-area-page .jtnp-news-single-body blockquote {
+  margin: 0 0 1em;
+  padding-left: 16px;
+  border-left: 2px solid var(--jtnp-gold-border);
+  color: var(--jtnp-tx3);
+}
+
+.jtnp-area-page .jtnp-news-single-blk .btn {
+  margin-top: 32px;
+}
+
+/* ------------------------------------------------------------------ sns */
+.jtnp-area-page .snssec {
+  background: var(--jtnp-bg2);
+  border-top: 1px solid var(--jtnp-divider);
+  border-bottom: 1px solid var(--jtnp-divider);
+  text-align: center;
+  padding: 34px 20px;
+}
+
+.jtnp-area-page .snssec .eyebrow {
+  margin-bottom: 6px;
+}
+
+.jtnp-area-page .sns-t {
+  font-family: var(--jtnp-fdisp);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  margin: 0 0 18px;
+  color: var(--jtnp-tx);
+}
+
+.jtnp-area-page .snsrow {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.jtnp-area-page .sns {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--jtnp-gold-border);
+  background: transparent;
+  color: var(--jtnp-tx);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  transition: border-color .15s, color .15s, background .15s;
+}
+
+.jtnp-area-page .sns:hover,
+.jtnp-area-page .sns:focus-visible {
+  border-color: var(--jtnp-gold);
+  color: var(--jtnp-gold);
+  background: rgba(223, 180, 60, .06);
+}
+
+/* ------------------------------------------- Global Member/Collection CTA
+   Global Component — identical markup and CSS on the national top and every
+   JTNP Area Page (template-parts/jtnp/member.php is one shared file). Class
+   names (.japan / .jp-*) are kept from this component's origin as KOBE's
+   "Japan-wide band" — the visual (full-bleed photo, dark overlay, centred
+   copy, gold CTA) is unchanged, only its content and role changed: from a
+   one-off "see all of Japan" banner into the shared Member/Collection
+   entry point, CTA now shared with the App Bar / Footer 会員登録 button via
+   jtnp_join_url(). See inc/jtnp-global-data.php::jtnp_member_cta(). */
+.jtnp-area-page .japan {
+  position: relative;
+  overflow: hidden;
+  background: var(--jtnp-bg2);
+}
+
+.jtnp-area-page .jp-img {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+
+.jtnp-area-page .japan::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(1, 10, 26, .86), rgba(1, 6, 16, .94));
+}
+
+.jtnp-area-page .jp-b {
+  position: relative;
+  z-index: 2;
+  padding: 42px 20px 46px;
+  text-align: center;
+}
+
+.jtnp-area-page .jp-t {
+  font-family: var(--jtnp-fdisp);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.25;
+  letter-spacing: .03em;
+  margin: 8px 0 22px;
+  color: var(--jtnp-tx);
+}
+
+/* Vertical rhythm fix (this revision): .btn.wide's general margin-top (16px
+   — assets/css/jtnp-area.css, Global Button System) is correct for the News
+   archive CTA, which follows a list rather than a paragraph of body copy —
+   the list's own bottom spacing already reads as a break before the button.
+   Here the CTA follows .body directly with nothing in
+   between, so the same 16px read as cramped relative to the 22px this
+   section already puts between its own heading and body immediately above
+   (.jp-t's margin-bottom, right above). Scoped to .japan so the News/Ranking
+   callers are untouched. 24px is the next step up the confirmed spacing
+   scale (4/8/12/16/20/24/32/44/56/72px); the >=576px tier below matches
+   .jp-t's own 28px margin-bottom exactly at that tier for the same reason. */
+.jtnp-area-page .japan .btn.wide {
+  margin-top: 24px;
+}
+
+.jtnp-area-page .eyebrow.gold {
+  color: var(--jtnp-gold);
+}
+/* ------------------------------------------- Global Spoon Collection
+   + Global Explore Japan MAP
+   Global Components — identical markup, CSS and JS on the national top and
+   every JTNP Area Page. Ported unchanged from assets/css/jtnp-national.css
+   (where this shipped as a national-top-only file before 0.7.1) — only the
+   scoping class changed (.jtnp-national-explore/.jtnp-national-collection ->
+   .jtnp-explore-blk/.jtnp-collection-blk), not one property value. The MAP
+   interaction itself lives in assets/js/jtnp-explore-map.js (also shared),
+   built on assets/js/jtnp-map-data.js (static geometry, unchanged since
+   0.7.0). See template-parts/jtnp/{explore,collection}.php. */
+
+/* ------------------------------------------------------- explore / MAP */
+.jtnp-explore-blk .explore-lead {
+  max-width: 60ch;
+}
+
+.jtnp-explore-blk .wf-ex {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 22px;
+}
+
+.jtnp-explore-blk .wf-ex > * {
+  min-width: 0;
+}
+
+@media (min-width: 992px) {
+  .jtnp-explore-blk .wf-ex {
+    grid-template-columns: minmax(0, 1.32fr) minmax(0, 1fr);
+    gap: 30px;
+    align-items: start;
+  }
+}
+
+.jtnp-explore-blk .mapwrap {
+  position: relative;
+  border: 1px solid var(--jtnp-divider);
+  border-radius: 5px;
+  background: var(--jtnp-bg);
+  overflow: hidden;
+}
+
+.jtnp-explore-blk .mapstage {
+  position: relative;
+}
+
+.jtnp-explore-blk .mapwrap svg {
+  display: block;
+  width: 100%;
+  height: 330px;
+}
+
+@media (min-width: 576px) {
+  .jtnp-explore-blk .mapwrap svg {
+    height: 440px;
+  }
+}
+
+@media (min-width: 992px) {
+  .jtnp-explore-blk .mapwrap svg {
+    height: 560px;
+  }
+}
+
+.jtnp-explore-blk .pinlayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.jtnp-explore-blk .mpin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--jtnp-tx);
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  appearance: none;
+}
+
+.jtnp-explore-blk .mpin .nm {
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 1px 5px var(--jtnp-bg), 0 0 8px var(--jtnp-bg);
+}
+
+.jtnp-explore-blk .mpin .dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--jtnp-bg);
+  border: 2px solid var(--jtnp-gold-hi);
+  box-shadow: 0 0 0 3px rgba(3, 6, 14, .85), 0 0 10px rgba(223, 180, 60, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jtnp-explore-blk .mpin .sub {
+  font-family: var(--jtnp-mono);
+  font-size: 9px;
+  color: rgba(255, 255, 255, .6);
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 1px 5px var(--jtnp-bg);
+}
+
+.jtnp-explore-blk .mpin.soon {
+  cursor: default;
+}
+
+.jtnp-explore-blk .mpin.soon .dot {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--jtnp-teal-accent);
+  width: 11px;
+  height: 11px;
+  box-shadow: none;
+}
+
+.jtnp-explore-blk .mpin.soon .nm {
+  font-weight: 400;
+  color: rgba(255, 255, 255, .5);
+  font-size: 10.5px;
+}
+
+@media (max-width: 575.98px) {
+  .jtnp-explore-blk .mpin .sub {
+    display: none;
+  }
+
+  .jtnp-explore-blk .mpin {
+    padding: 6px 8px;
+    gap: 2px;
+  }
+
+  .jtnp-explore-blk .mpin .nm {
+    font-size: 11px;
+  }
+}
+
+.jtnp-explore-blk .mpin.ar .dot {
+  width: 25px;
+  height: 25px;
+  font-family: var(--jtnp-mono);
+  font-size: 11px;
+  color: #160F02;
+  border-width: 0;
+  background: linear-gradient(180deg, var(--jtnp-gold-hi), var(--jtnp-gold));
+  box-shadow: 0 0 0 3px rgba(3, 6, 14, .85), 0 3px 8px rgba(0, 0, 0, .4);
+}
+
+.jtnp-explore-blk .mpin.sel .dot {
+  background: linear-gradient(180deg, #fff, var(--jtnp-gold-hi));
+  border-color: #fff;
+}
+
+.jtnp-explore-blk .mpin:focus-visible {
+  outline: 2px solid var(--jtnp-gold-hi);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.jtnp-explore-blk .mapbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  pointer-events: none;
+}
+
+.jtnp-explore-blk .backbtn {
+  pointer-events: auto;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 15px;
+  border: 1px solid var(--jtnp-gold-border);
+  border-radius: 999px;
+  background: rgba(3, 6, 14, .92);
+  color: var(--jtnp-tx);
+  font-size: 11.5px;
+  font-family: var(--jtnp-fb);
+  cursor: pointer;
+  appearance: none;
+}
+
+.jtnp-explore-blk .backbtn:hover,
+.jtnp-explore-blk .backbtn:focus-visible {
+  border-color: var(--jtnp-gold);
+}
+
+/* Explore previewの「閉じる」はCTAではなくUI control。
+   .btnのSecondary hover色変更を継承させず、従来の白文字を維持する。 */
+.jtnp-explore-blk [data-jtnp-prevclose]:hover,
+.jtnp-explore-blk [data-jtnp-prevclose]:focus-visible {
+  color: var(--jtnp-tx);
+}
+
+.jtnp-explore-blk .mapwrap[data-st="pref"] .backbtn {
+  display: inline-flex;
+}
+
+.jtnp-explore-blk .crumb {
+  margin-left: auto;
+  font-family: var(--jtnp-mono);
+  font-size: 10px;
+  color: var(--jtnp-tx3);
+  background: rgba(3, 6, 14, .86);
+  padding: 6px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--jtnp-divider);
+}
+
+.jtnp-explore-blk .legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 16px;
+  padding: 11px 14px;
+  border-top: 1px solid var(--jtnp-divider);
+  font-size: 10.5px;
+  color: var(--jtnp-tx2);
+}
+
+.jtnp-explore-blk .legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: -2px;
+}
+
+.jtnp-explore-blk .lg-on {
+  background: rgba(223, 180, 60, .28);
+  border: 1px solid var(--jtnp-gold-hi);
+}
+
+.jtnp-explore-blk .lg-soon {
+  background: rgba(53, 198, 198, .05);
+  border: 1px dashed var(--jtnp-teal-accent);
+}
+
+.jtnp-explore-blk .lg-off {
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .14);
+}
+
+.jtnp-explore-blk .pf {
+  cursor: default;
+  transition: fill .18s, opacity .3s;
+}
+
+.jtnp-explore-blk .pf.on {
+  cursor: pointer;
+}
+
+.jtnp-explore-blk .pf.on:hover,
+.jtnp-explore-blk .pf.on.hi {
+  fill: rgba(223, 180, 60, .34) !important;
+}
+
+/* panel — Prefecture Selector + Area list + Area preview */
+.jtnp-explore-blk .panel {
+  border: 1px solid var(--jtnp-divider);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, .015);
+  padding: 18px;
+}
+
+.jtnp-explore-blk .sublab {
+  font-family: var(--jtnp-fdisp);
+  font-size: 9.5px;
+  letter-spacing: .24em;
+  color: var(--jtnp-gold);
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+.jtnp-explore-blk .rail {
+  display: flex;
+  gap: 9px;
+  overflow-x: auto;
+  padding: 2px 0 8px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.jtnp-explore-blk .rail::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .jtnp-explore-blk .rail {
+    display: none;
+  }
+}
+
+.jtnp-explore-blk .rail .pchip {
+  scroll-snap-align: start;
+}
+
+.jtnp-explore-blk .pchip {
+  flex: 0 0 auto;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: 6px 15px;
+  border: 1px solid var(--jtnp-gold-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .025);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--jtnp-tx);
+  font-family: var(--jtnp-fb);
+  appearance: none;
+}
+
+.jtnp-explore-blk .pchip small {
+  font-family: var(--jtnp-mono);
+  font-size: 9px;
+  color: var(--jtnp-tx3);
+}
+
+.jtnp-explore-blk .pchip.soon {
+  border-style: dashed;
+  border-color: var(--jtnp-teal);
+  color: var(--jtnp-tx3);
+  cursor: default;
+}
+
+.jtnp-explore-blk .pchip.sel {
+  background: linear-gradient(180deg, var(--jtnp-gold-hi), var(--jtnp-gold));
+  color: #160F02;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+.jtnp-explore-blk .pchip.sel small {
+  color: rgba(22, 15, 2, .6);
+}
+
+.jtnp-explore-blk .acc {
+  border-top: 1px solid var(--jtnp-divider);
+  margin-top: 10px;
+  padding-top: 12px;
+}
+
+.jtnp-explore-blk .acc > b {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  font-size: 12.5px;
+  cursor: pointer;
+  color: var(--jtnp-tx);
+  font-weight: 700;
+}
+
+.jtnp-explore-blk .acc > b:focus-visible,
+.jtnp-explore-blk .backbtn:focus-visible {
+  outline: 2px solid var(--jtnp-gold-hi);
+  outline-offset: 2px;
+}
+
+.jtnp-explore-blk .reglist {
+  display: none;
+  grid-template-columns: 1fr;
+  gap: 11px;
+  margin-top: 6px;
+}
+
+.jtnp-explore-blk .acc.open .reglist {
+  display: grid;
+}
+
+@media (min-width: 992px) {
+  .jtnp-explore-blk .reglist {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 13px;
+    margin-top: 2px;
+  }
+
+  .jtnp-explore-blk .acc {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+
+  .jtnp-explore-blk .acc > b {
+    display: none;
+  }
+}
+
+.jtnp-explore-blk .reg {
+  border-bottom: 1px solid var(--jtnp-divider);
+  padding-bottom: 11px;
+}
+
+.jtnp-explore-blk .reg > span {
+  display: block;
+  font-family: var(--jtnp-fdisp);
+  font-size: 9.5px;
+  letter-spacing: .2em;
+  color: var(--jtnp-tx3);
+  margin-bottom: 8px;
+}
+
+.jtnp-explore-blk .reg .prow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.jtnp-explore-blk .ptag {
+  font-size: 11.5px;
+  padding: 5px 10px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  color: var(--jtnp-tx3);
+  font-family: var(--jtnp-fb);
+  background: none;
+  appearance: none;
+}
+
+.jtnp-explore-blk .ptag.on {
+  color: var(--jtnp-tx);
+  border-color: var(--jtnp-gold-border);
+  background: rgba(255, 255, 255, .025);
+  cursor: pointer;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.jtnp-explore-blk .ptag.on:hover,
+.jtnp-explore-blk .ptag.on:focus-visible {
+  border-color: var(--jtnp-gold);
+}
+
+.jtnp-explore-blk .ptag.on b {
+  font-family: var(--jtnp-mono);
+  font-size: 9px;
+  color: var(--jtnp-tx2);
+  font-weight: 400;
+}
+
+.jtnp-explore-blk .ptag.soon {
+  border: 1px dashed var(--jtnp-teal);
+  color: var(--jtnp-tx3);
+}
+
+.jtnp-explore-blk .areahead {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 0 0 12px;
+}
+
+.jtnp-explore-blk .areahead h4 {
+  margin: 0;
+  font-family: var(--jtnp-fjp);
+  font-size: 16px;
+  color: var(--jtnp-tx);
+}
+
+.jtnp-explore-blk .areahead .cnt {
+  font-family: var(--jtnp-mono);
+  font-size: 10px;
+  color: var(--jtnp-gold);
+}
+
+.jtnp-explore-blk .acards {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .jtnp-explore-blk .acards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.jtnp-explore-blk .acard {
+  display: grid;
+  grid-template-columns: auto 70px 1fr auto;
+  gap: 11px;
+  align-items: center;
+  border: 1px solid var(--jtnp-divider);
+  border-radius: 5px;
+  padding: 10px;
+  background: rgba(255, 255, 255, .025);
+  cursor: pointer;
+  min-height: 64px;
+  transition: border-color .15s, background .15s;
+}
+
+.jtnp-explore-blk .acard:hover,
+.jtnp-explore-blk .acard:focus-visible {
+  border-color: var(--jtnp-gold-border);
+  background: rgba(223, 180, 60, .04);
+}
+
+.jtnp-explore-blk .acard .no {
+  font-family: var(--jtnp-fdisp);
+  font-size: 11px;
+  color: var(--jtnp-gold);
+  width: 18px;
+  text-align: center;
+}
+
+.jtnp-explore-blk .acard .ph {
+  height: 52px;
+  border-radius: 2px;
+}
+
+.jtnp-explore-blk .acard .nm {
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  font-family: var(--jtnp-fjp);
+  color: var(--jtnp-tx);
+}
+
+.jtnp-explore-blk .acard .nm em {
+  display: block;
+  font-style: normal;
+  font-family: var(--jtnp-mono);
+  font-size: 9px;
+  color: var(--jtnp-tx3);
+  letter-spacing: .08em;
+  margin-top: 2px;
+}
+
+.jtnp-explore-blk .acard .ar {
+  color: var(--jtnp-gold);
+  font-size: 14px;
+  padding-right: 4px;
+}
+
+.jtnp-explore-blk .acard.sel {
+  background: rgba(223, 180, 60, .09);
+  border-color: var(--jtnp-gold-border);
+}
+
+.jtnp-explore-blk .acard:focus-visible {
+  outline: 2px solid var(--jtnp-gold-hi);
+  outline-offset: 2px;
+}
+
+.jtnp-explore-blk .empty {
+  border: 1px solid var(--jtnp-divider);
+  border-radius: 5px;
+  padding: 20px;
+  text-align: center;
+  color: var(--jtnp-tx2);
+  font-size: 12px;
+  background: radial-gradient(120% 140% at 50% -10%, rgba(53, 198, 198, .06), transparent 60%);
+}
+
+.jtnp-explore-blk .empty b {
+  display: block;
+  color: var(--jtnp-tx);
+  font-size: 12.5px;
+  margin-bottom: 5px;
+  font-family: var(--jtnp-fjp);
+}
+
+.jtnp-explore-blk .prev {
+  border: 1px solid var(--jtnp-gold-border);
+  border-radius: 5px;
+  padding: 13px;
+  margin-top: 12px;
+  background: rgba(223, 180, 60, .04);
+  display: none;
+}
+
+.jtnp-explore-blk .prev.show {
+  display: block;
+}
+
+.jtnp-explore-blk .prev .ph {
+  height: 120px;
+  margin-bottom: 10px;
+  border-radius: 3px;
+}
+
+.jtnp-explore-blk .prev .pt {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 2px;
+  font-family: var(--jtnp-fjp);
+  color: var(--jtnp-tx);
+}
+
+.jtnp-explore-blk .prev .pe {
+  font-family: var(--jtnp-mono);
+  font-size: 9.5px;
+  color: var(--jtnp-tx3);
+  letter-spacing: .1em;
+  margin: 0 0 8px;
+}
+
+.jtnp-explore-blk .prev .prow2 {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.jtnp-explore-blk .ph {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  border-radius: 2px;
+  background-size: cover;
+  background-position: center;
+  background-color: transparent;
+  background-image:
+    radial-gradient(130% 150% at 18% -10%, rgba(223, 180, 60, .13), transparent 58%),
+    linear-gradient(158deg, #0C1220 0%, #070B14 55%, var(--jtnp-bg) 100%);
+}
+
+/* ------------------------------------------------------- Spoon Collection
+   cards — vertical package-photo card, not a circular medallion (this
+   revision). The photography (485x922) IS the product packaging, not an
+   interchangeable destination thumbnail, so cropping it into a circle would
+   cut off real content: .spoonc-media locks the source aspect-ratio and
+   every image renders with object-fit:contain, never cover, so the full
+   package is always visible, uncropped, at any card width. */
+.jtnp-collection-blk .spoonc-list {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 20px 4px 12px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  margin-top: 4px;
+}
+
+.jtnp-collection-blk .spoonc-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tablet/Desktop: grid, not the Mobile scroll rail. auto-fit + a 160px
+   minimum means the column count is never hardcoded to 6 — with exactly 6
+   cards in the shelf (jtnp_spoon_collection()) the browser fits as many as
+   the available width allows at >=160px each and stretches them evenly, so
+   this naturally renders 6 across at the Desktop content-band width without
+   a single Desktop-specific column count written here. */
+@media (min-width: 576px) {
+  .jtnp-collection-blk .spoonc-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    overflow: visible;
+    gap: 20px;
+    padding: 4px 0 0;
+  }
+}
+
+@media (min-width: 992px) {
+  .jtnp-collection-blk .spoonc-list {
+    gap: 22px;
+  }
+}
+
+/* SNS-SPOON-COLLECTION-CMS-1: once the CMS holds more spoons than the
+   Tablet/Desktop grid above fits in one row (>6 — see
+   template-parts/jtnp/collection.php, which adds this class), stay a single
+   horizontally-scrollable shelf instead of wrapping to a second/third row.
+   Card width is pinned close to what the auto-fit grid already renders it at
+   in this range (160-220px) so 6-or-fewer spoons already looked the same
+   before this class existed, and adding a 7th+ spoon does not change how the
+   first 6 look — it only makes the rail start scrolling. Mouse wheel is left
+   completely alone (native vertical wheel scroll still scrolls the PAGE, not
+   this rail) — only an explicit horizontal input (trackpad/touch drag, the
+   scrollbar, Shift+wheel, or the Home/End/Left/Right keys via
+   .spoonc-list[tabindex]) moves it, same as the Mobile rail already behaves
+   below 576px. */
+@media (min-width: 576px) {
+  .jtnp-collection-blk .spoonc-list.has-overflow {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    padding: 4px 4px 16px;
+  }
+
+  .jtnp-collection-blk .spoonc-list.has-overflow::-webkit-scrollbar {
+    display: block;
+    height: 6px;
+  }
+
+  .jtnp-collection-blk .spoonc-list.has-overflow::-webkit-scrollbar-thumb {
+    background: var(--jtnp-gold-border);
+    border-radius: 3px;
+  }
+
+  .jtnp-collection-blk .spoonc-list.has-overflow .spoonc-card {
+    flex: 0 0 200px;
+    max-width: 200px;
+    scroll-snap-align: start;
+  }
+
+  /* Keyboard focus on the rail itself (tabindex="0", added only when
+     has-overflow — template-parts/jtnp/collection.php), not on a card:
+     Left/Right/Home/End then scroll it, same as focusing any native
+     scrollable region. */
+  .jtnp-collection-blk .spoonc-list.has-overflow:focus-visible {
+    outline: 2px solid var(--jtnp-gold-hi);
+    outline-offset: 2px;
+  }
+}
+
+@media (min-width: 992px) {
+  .jtnp-collection-blk .spoonc-list.has-overflow .spoonc-card {
+    flex-basis: 220px;
+    max-width: 220px;
+  }
+}
+
+.jtnp-collection-blk .spoonc-card {
+  position: relative;
+  flex: 0 0 62%;
+  max-width: 240px;
+  scroll-snap-align: start;
+  display: block;
+  text-decoration: none;
+  color: var(--jtnp-tx);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 8px 8px 12px;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+@media (min-width: 576px) {
+  .jtnp-collection-blk .spoonc-card {
+    flex: none;
+    max-width: none;
+  }
+}
+
+.jtnp-collection-blk .spoonc-media {
+  display: block;
+  aspect-ratio: 485 / 922;
+  border-radius: 4px;
+  overflow: hidden; /* contains the :hover scale below; also crops nothing
+    of the photo itself, since object-fit:contain never overflows this box */
+  background: var(--jtnp-bg);
+  transition: transform .2s ease;
+}
+
+.jtnp-collection-blk .spoonc-img,
+.jtnp-collection-blk .spoonc-media .jtnp-img-missing {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 0;
+  background: var(--jtnp-bg);
+}
+
+.jtnp-collection-blk .spoonc-body {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.jtnp-collection-blk .spoonc-name {
+  display: block;
+  font-size: 13.5px;
+  font-family: var(--jtnp-fjp);
+  font-weight: 600;
+}
+
+.jtnp-collection-blk .spoonc-sub {
+  display: block;
+  font-family: var(--jtnp-mono);
+  font-size: 9.5px;
+  color: var(--jtnp-tx3);
+  letter-spacing: .06em;
+  margin-top: 3px;
+}
+
+.jtnp-collection-blk .spoonc-card.soon .spoonc-sub {
+  color: var(--jtnp-teal-accent);
+}
+
+/* Hover / focus — subtle and reversible: a thin gold border, a faint gold
+   wash, and a small (1.02x) scale on the photo only (not the whole card, so
+   the name/sub text never shifts). See .current below for the persistent,
+   always-on equivalent. */
+.jtnp-collection-blk .spoonc-card:hover,
+.jtnp-collection-blk .spoonc-card:focus-visible {
+  border-color: var(--jtnp-gold-border);
+  background: rgba(223, 180, 60, .04);
+}
+
+.jtnp-collection-blk .spoonc-card:hover .spoonc-media,
+.jtnp-collection-blk .spoonc-card:focus-visible .spoonc-media {
+  transform: scale(1.02);
+}
+
+.jtnp-collection-blk .spoonc-card:focus-visible {
+  outline: 2px solid var(--jtnp-gold-hi);
+  outline-offset: 2px;
+}
+
+/* Current / Selected — the JTNP Area Page whose own slug matches this card
+   (jtnp_current_spoon_slug(), inc/jtnp-area-setup.php). This border/glow is
+   only the visual channel: template-parts/jtnp/collection.php also sets
+   aria-current="page" on the card and renders the 表示中 badge below, so the
+   state does not depend on colour perception or on hovering/focusing it.
+   Intentionally a stronger, ALWAYS-ON version of :hover's treatment above,
+   not merely the same rule reused, so a current card reads as "this one" at
+   a glance even sitting next to a card someone happens to be hovering. */
+.jtnp-collection-blk .spoonc-card.current {
+  border-color: var(--jtnp-gold-hi);
+  background: rgba(223, 180, 60, .06);
+  box-shadow: 0 0 0 1px var(--jtnp-gold-hi), 0 0 22px -8px rgba(223, 180, 60, .55);
+}
+
+.jtnp-collection-blk .spoonc-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1;
+  background: linear-gradient(180deg, var(--jtnp-gold-hi), var(--jtnp-gold));
+  color: #160F02;
+  font-family: var(--jtnp-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------- The Spoon / Where to Buy
+   Area-reusable Component — ported verbatim from
+   design/JTNP_Kobe_Design_1.html (Variant A, id="a-hf-spoon"). KOBE-specific
+   content lives entirely in inc/jtnp-area-data.php
+   (jtnp_area_spoon_product()/jtnp_area_spoon_stores()); this CSS, like the
+   markup in template-parts/jtnp/area-spoon.php, is written for any Area
+   Page, not only KOBE. */
+.jtnp-area-page .product {
+  display: flex;
+  gap: 15px;
+  background: var(--jtnp-surf);
+  border: 1px solid var(--jtnp-gold-border);
+  border-radius: var(--jtnp-r);
+  padding: 15px;
+}
+
+.jtnp-area-page .pd-img {
+  width: 118px;
+  flex: 0 0 auto;
+  aspect-ratio: 56 / 68;
+  border-radius: 8px;
+}
+
+.jtnp-area-page .pd-b {
+  flex: 1;
+  min-width: 0;
+}
+
+.jtnp-area-page .pd-n {
+  font-family: var(--jtnp-fdisp);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  line-height: 1.35;
+  margin: 0 0 10px;
+  color: var(--jtnp-tx);
+}
+
+.jtnp-area-page .pd-n span {
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  color: var(--jtnp-gold);
+}
+
+.jtnp-area-page .pd-line {
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--jtnp-tx2);
+  margin: 0;
+}
+
+.jtnp-area-page .pd-price {
+  font-family: var(--jtnp-fdisp);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--jtnp-gold);
+  margin: 12px 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.jtnp-area-page .pd-price span {
+  font-family: var(--jtnp-fb);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--jtnp-tx3);
+  font-weight: 400;
+}
+
+.jtnp-area-page .sub-h {
+  font-family: var(--jtnp-fdisp);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--jtnp-gold);
+  margin: 32px 0 14px;
+}
+
+.jtnp-area-page .stores {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jtnp-area-page .store {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--jtnp-surf);
+  border: 1px solid var(--jtnp-line);
+  border-radius: var(--jtnp-r);
+  padding: 11px;
+}
+
+.jtnp-area-page .st-i {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+}
+
+.jtnp-area-page .st-b {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.jtnp-area-page .st-b b {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.jtnp-area-page .st-a {
+  font-size: 11px;
+  color: var(--jtnp-tx3);
+  line-height: 1.5;
+}
+
+.jtnp-area-page .st-l {
+  display: flex;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+/* Inert (jtnp_link_open() renders a <span>) until a real Map/Site URL is
+   filtered in — same convention as every other not-yet-linked CTA on these
+   pages. */
+.jtnp-area-page .mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--jtnp-gold);
+  border: 1px solid var(--jtnp-gold-border);
+  border-radius: 999px;
+  padding: 3px 9px;
+  text-decoration: none;
+}
+
+.jtnp-area-page .mini:hover,
+.jtnp-area-page .mini:focus-visible {
+  border-color: var(--jtnp-gold);
+  color: var(--jtnp-gold-hi);
+}
+
+/* Where to Buy — Map/Site mini-link with no URL set (SNS-WHERE-TO-BUY-CMS-1).
+   Reuses the theme's existing muted text/border tokens (the same --jtnp-tx3 /
+   --jtnp-line pair .st-a and .store already use) rather than introducing a
+   new color, and the same opacity/cursor convention .btn[disabled] already
+   uses elsewhere on this page. jtnp_link_open() already renders this as an
+   inert <span>, so pointer-events/cursor here are belt-and-braces, not the
+   only thing preventing a click. */
+.jtnp-area-page .mini.is-disabled {
+  color: var(--jtnp-tx3);
+  border-color: var(--jtnp-line);
+  opacity: .7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.jtnp-area-page .mini.is-disabled:hover,
+.jtnp-area-page .mini.is-disabled:focus-visible {
+  border-color: var(--jtnp-line);
+  color: var(--jtnp-tx3);
+}
+
+/* --------------------------------------------------------------- footer
+   Global Component — identical markup and CSS on the national top and every
+   JTNP Area Page (template-parts/jtnp/footer.php is one shared file). */
+.jtnp-area-page .footer {
+  background: var(--jtnp-bg);
+  padding: 36px 20px 40px;
+  text-align: center;
+  border-top: 1px solid var(--jtnp-divider);
+}
+
+.jtnp-area-page .ft-logo {
+  font-family: var(--jtnp-fdisp);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: .18em;
+  margin: 0;
+  color: var(--jtnp-tx);
+}
+
+.jtnp-area-page .ft-logo-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.jtnp-area-page .ft-sub {
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--jtnp-tx3);
+  margin: 5px 0 22px;
+}
+
+.jtnp-area-page .ft-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 18px;
+  font-size: 12px;
+  color: var(--jtnp-tx2);
+}
+
+.jtnp-area-page .ft-link:hover,
+.jtnp-area-page .ft-link:focus-visible {
+  color: var(--jtnp-gold-hi);
+}
+
+/* 会員登録 (Primary Small) + Login (Text Link), the same two Global Buttons
+   as the App Bar — see .ab-join / .ab-login above. */
+.jtnp-area-page .ft-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 22px 0 0;
+}
+
+.jtnp-area-page .ft-join {
+  min-height: 38px;
+  padding: 0 18px;
+  font-size: 11.5px;
+}
+
+.jtnp-area-page .ft-loginlink {
+  min-height: 38px;
+  font-size: 11.5px;
+}
+
+.jtnp-area-page .ft-c {
+  font-size: 10.5px;
+  color: var(--jtnp-tx3);
+  margin: 22px 0 0;
+}
+
+/* ------------------------------------------------------------ a11y */
+.jtnp-area-page .jtnp-area a:focus-visible,
+.jtnp-area-page .jtnp-area button:focus-visible {
+  outline: 2px solid var(--jtnp-gold-hi);
+  outline-offset: 2px;
+}
+
+/* ===========================================================================
+   RESPONSIVE — Lightning / VK breakpoint convention
+
+   Content band: padding-inline: max(32px, calc((100% - 1200px) / 2))
+     390px  -> not applied (20px base padding, 350px content)
+     820px  -> 32px  padding,  756px content
+    1440px  -> 120px padding, 1200px content
+   =========================================================================== */
+
+/* ------------------------------------------------- Tablet: >= 576px */
+@media (min-width: 576px) {
+  .jtnp-area-page .blk {
+    --jtnp-pad: max(32px, calc((100% - 1200px) / 2));
+  }
+
+  .jtnp-area-page .sec {
+    padding: 64px var(--jtnp-pad) 68px;
+  }
+
+  .jtnp-area-page .eyebrow {
+    font-size: 10.5px;
+    margin-bottom: 13px;
+  }
+
+  .jtnp-area-page .sec-t {
+    font-size: 30px;
+    margin-bottom: 10px;
+  }
+
+  .jtnp-area-page .sec-s {
+    font-size: 13.5px;
+    margin-bottom: 24px;
+  }
+
+  .jtnp-area-page .body {
+    font-size: 15.5px;
+  }
+
+  .jtnp-area-page .note {
+    font-size: 12px;
+  }
+
+  /* app bar */
+  .jtnp-area-page .appbar {
+    padding: 16px var(--jtnp-pad);
+  }
+
+  .jtnp-area-page .jtnp {
+    font-size: 19px;
+  }
+
+  .jtnp-area-page .ab-lang {
+    font-size: 11.5px;
+    padding: 6px 12px;
+  }
+
+  .jtnp-area-page .ab-right {
+    gap: 18px;
+  }
+
+  /* hero — full-bleed image, copy inside the content band */
+  .jtnp-area-page .hero {
+    height: clamp(460px, 56vh, 540px);
+  }
+
+  .jtnp-area-page .hero-frame {
+    inset: 24px;
+  }
+
+  .jtnp-area-page .hero-body {
+    left: 0;
+    right: 0;
+    bottom: 96px;
+    padding: 0 var(--jtnp-pad);
+  }
+
+  .jtnp-area-page .hero-jp {
+    font-size: 32px;
+  }
+
+  .jtnp-area-page .hero-en {
+    font-size: 58px;
+  }
+
+  .jtnp-area-page .hero-sub {
+    font-size: 12px;
+    margin-top: 16px;
+  }
+
+  .jtnp-area-page .hero-lead {
+    font-size: 15px;
+    max-width: 470px;
+    margin-top: 20px;
+  }
+
+  .jtnp-area-page .scrollcue {
+    bottom: 32px;
+    font-size: 10.5px;
+  }
+
+  /* landmark — copy left, photo right. Row 5 (the buttons) is the flexible
+     track so surplus height from the photo lands below them instead of
+     stretching the gaps between paragraphs. */
+  .jtnp-area-page .sec-landmark {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+    grid-template-rows: auto auto auto auto 1fr;
+    column-gap: 44px;
+    align-items: start;
+  }
+
+  .jtnp-area-page .sec-landmark > .eyebrow { grid-area: 1 / 1; }
+  .jtnp-area-page .sec-landmark > .sec-t   { grid-area: 2 / 1; }
+
+  .jtnp-area-page .sec-landmark > .body {
+    grid-area: 3 / 1;
+    margin-top: 18px;
+  }
+
+  .jtnp-area-page .sec-landmark > .chips {
+    grid-area: 4 / 1;
+    margin-top: 22px;
+  }
+
+  .jtnp-area-page .sec-landmark > .btns {
+    grid-area: 5 / 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: start;
+    margin-top: 24px;
+  }
+
+  .jtnp-area-page .sec-landmark > .photo {
+    grid-area: 1 / 2 / span 5 / 3;
+    margin: 0;
+    aspect-ratio: 4 / 5;
+    align-self: start;
+  }
+
+  .jtnp-area-page .sec-landmark .btn {
+    flex: 0 1 auto;
+    padding: 0 22px;
+  }
+
+  /* ranking — two columns */
+  .jtnp-area-page .sec-ranking .ranks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .jtnp-area-page .sec-ranking .btn.wide {
+    width: 100%;
+    max-width: 320px;
+    margin: 26px auto 0;
+  }
+
+  .jtnp-area-page .sec-ranking .note {
+    text-align: center;
+  }
+
+  .jtnp-area-page .rank {
+    padding: 13px 15px;
+  }
+
+  .jtnp-area-page .rk-i {
+    width: 70px;
+    height: 70px;
+  }
+
+  .jtnp-area-page .rk-b b {
+    font-size: 15px;
+  }
+
+  /* official guides — two columns */
+  .jtnp-area-page .sec-official {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 24px;
+  }
+
+  .jtnp-area-page .sec-official > .eyebrow,
+  .jtnp-area-page .sec-official > .sec-t,
+  .jtnp-area-page .sec-official > .note {
+    grid-column: 1 / -1;
+  }
+
+  .jtnp-area-page .sec-official > .sec-t {
+    margin-bottom: 26px;
+  }
+
+  .jtnp-area-page .sec-official .ext {
+    margin-bottom: 0;
+    padding: 22px;
+  }
+
+  .jtnp-area-page .sec-official .ext-b b {
+    font-size: 17px;
+  }
+
+  /* instagram — horizontal rail, not a 2-column grid. The embed never drops
+     below its 326px minimum (tablet card 366px, desktop 380px from the 992
+     tier). Prev/Next scroll the rail only. */
+  .jtnp-area-page .igtop {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .jtnp-area-page .igctrl {
+    display: flex;
+  }
+
+  .jtnp-area-page .igsub {
+    font-size: 13.5px;
+    margin-bottom: 32px;
+  }
+
+  .jtnp-area-page .feed3 {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    margin: 0 calc(-1 * var(--jtnp-pad));
+    padding: 4px var(--jtnp-pad) 8px;
+  }
+
+  .jtnp-area-page .feed3::-webkit-scrollbar {
+    display: none;
+  }
+
+  .jtnp-area-page .ig3 {
+    flex: 0 0 366px;
+    width: 366px;
+    max-width: none;
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  .jtnp-area-page .more3,
+  .jtnp-area-page .more10 {
+    max-width: 360px;
+    margin: 28px auto 0;
+  }
+
+  /* news — still the hairline editorial list. Widening only scales the
+     thumbnail and type; it never becomes a card grid. */
+  .jtnp-area-page .sec-news .news {
+    padding: 16px 4px;
+    gap: 16px;
+  }
+
+  .jtnp-area-page .sec-news .nw-b b {
+    font-size: 14.5px;
+  }
+
+  .jtnp-area-page .sec-news .nw-d {
+    font-size: 10.5px;
+  }
+
+  .jtnp-area-page .sec-news .btn.wide {
+    width: 100%;
+    max-width: 320px;
+    margin: 26px auto 0;
+  }
+
+  /* sns — title left, icons right */
+  .jtnp-area-page .snssec {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 40px;
+    text-align: left;
+    padding: 52px var(--jtnp-pad);
+  }
+
+  .jtnp-area-page .snssec .eyebrow {
+    grid-area: 1 / 1;
+    margin: 0 0 8px;
+  }
+
+  .jtnp-area-page .snssec .sns-t {
+    grid-area: 2 / 1;
+    margin: 0;
+    font-size: 26px;
+  }
+
+  .jtnp-area-page .snssec .snsrow {
+    grid-area: 1 / 2 / 3 / 3;
+    justify-content: flex-end;
+    gap: 14px;
+  }
+
+  .jtnp-area-page .snssec .sns {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* other areas — stays a horizontal rail at every tier (handoff §8, after
+     production Visual QA: 6 areas must slide, never wrap into a grid or
+     shrink to fit one screen). Only the card size grows with the viewport,
+     the same pattern the Instagram rail uses at this tier — gutter margin
+     and padding mirror .feed3 exactly so both rails feel consistent. */
+  .jtnp-area-page .sec-areas .areas {
+    gap: 28px;
+    margin: 0 calc(-1 * var(--jtnp-pad));
+    padding: 14px var(--jtnp-pad) 8px;
+  }
+
+  /* japan band */
+  .jtnp-area-page .jp-b {
+    padding: 78px var(--jtnp-pad) 84px;
+  }
+
+  .jtnp-area-page .jp-t {
+    font-size: 34px;
+    margin: 10px 0 28px;
+  }
+
+  /* .japan .btn.primary and .japan .btn.wide are the same element in practice
+     (jtnp_link_open( $url, 'btn primary wide' ) in template-parts/jtnp/member.php)
+     and are the same specificity (4 classes each) — writing the margin-top
+     fix as a second, separate .japan .btn.wide rule here silently lost to
+     this rule's own `margin: 0 auto` shorthand (which also sets
+     margin-top: 0) purely by appearing later in the file, a bug caught
+     while QA-verifying this fix visually rather than trusting the diff.
+     One rule, one full margin shorthand, avoids the specificity tie
+     entirely. 28px matches .jp-t's own margin-bottom at this tier, above. */
+  .jtnp-area-page .japan .btn.primary,
+  .jtnp-area-page .japan .btn.gold {
+    max-width: 340px;
+    margin: 28px auto 0;
+  }
+
+  /* footer — multi-column */
+  .jtnp-area-page .footer {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    text-align: left;
+    column-gap: 48px;
+    padding: 56px var(--jtnp-pad) 52px;
+  }
+
+  .jtnp-area-page .footer .ft-logo {
+    grid-area: 1 / 1;
+  }
+
+  .jtnp-area-page .footer .ft-sub {
+    grid-area: 2 / 1;
+    margin: 6px 0 0;
+  }
+
+  .jtnp-area-page .footer .ft-links {
+    grid-area: 1 / 2 / 3 / 3;
+    justify-content: flex-start;
+    gap: 10px 28px;
+    align-content: start;
+    padding-top: 5px;
+  }
+
+  .jtnp-area-page .footer .ft-login {
+    grid-area: 1 / 3 / 3 / 4;
+    margin: 0;
+    justify-self: end;
+  }
+
+  .jtnp-area-page .footer .ft-c {
+    grid-area: 3 / 1 / 4 / -1;
+    border-top: 1px solid var(--jtnp-divider);
+    padding-top: 20px;
+    margin: 26px 0 0;
+  }
+
+  .jtnp-area-page .footer .ft-login {
+    justify-content: flex-end;
+  }
+
+  /* The Spoon / Where to Buy */
+  .jtnp-area-page .sec-spoon .product {
+    padding: 24px;
+    gap: 28px;
+    align-items: center;
+  }
+
+  .jtnp-area-page .sec-spoon .pd-img {
+    width: 208px;
+  }
+
+  .jtnp-area-page .sec-spoon .pd-n {
+    font-size: 19px;
+  }
+
+  .jtnp-area-page .sec-spoon .pd-line {
+    font-size: 14px;
+    max-width: 56ch;
+  }
+
+  .jtnp-area-page .sec-spoon .pd-price {
+    font-size: 26px;
+  }
+
+  .jtnp-area-page .sec-spoon .stores {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+}
+
+/* ------------------------------------------------ Desktop: >= 992px */
+@media (min-width: 992px) {
+  .jtnp-area-page .sec {
+    padding: 80px var(--jtnp-pad) 84px;
+  }
+
+  .jtnp-area-page .sec-t {
+    font-size: 36px;
+  }
+
+  .jtnp-area-page .body {
+    font-size: 16px;
+  }
+
+  /* app bar — ~74px total height at Desktop, container width follows the
+     shared content band. .ab-nav becomes the always-visible inline row here
+     (it is a Mobile/Tablet dropdown below this breakpoint — see the base
+     tier above) and the hamburger toggle that opens that dropdown disappears. */
+  .jtnp-area-page .appbar {
+    padding: 17px var(--jtnp-pad);
+  }
+
+  .jtnp-area-page .ab-nav {
+    display: flex !important;
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    gap: 22px;
+    margin: 0 0 0 28px;
+    padding: 0;
+    background: none;
+    border-bottom: none;
+    box-shadow: none;
+  }
+
+  .jtnp-area-page .ab-nav a {
+    min-height: auto;
+    font-size: 12px;
+    border-top: none;
+  }
+
+  .jtnp-area-page .ab-navtoggle {
+    display: none;
+  }
+
+  .jtnp-area-page .btn.sm {
+    min-height: 38px;
+    font-size: 12px;
+    padding: 0 20px;
+  }
+
+  .jtnp-area-page .hero {
+    height: clamp(480px, 60vh, 630px);
+  }
+
+  .jtnp-area-page .hero-frame {
+    inset: 32px;
+  }
+
+  .jtnp-area-page .hero-body {
+    bottom: 124px;
+  }
+
+  .jtnp-area-page .hero-jp {
+    font-size: 38px;
+  }
+
+  .jtnp-area-page .hero-en {
+    font-size: 76px;
+  }
+
+  .jtnp-area-page .hero-lead {
+    font-size: 16px;
+    max-width: 540px;
+  }
+
+  .jtnp-area-page .sec-landmark {
+    column-gap: 72px;
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  }
+
+  .jtnp-area-page .sec-landmark > .photo {
+    aspect-ratio: 4 / 3;
+  }
+
+  .jtnp-area-page .rk {
+    font-size: 32px;
+    width: 32px;
+  }
+
+  .jtnp-area-page .rk-i {
+    width: 78px;
+    height: 78px;
+  }
+
+  .jtnp-area-page .rk-b b {
+    font-size: 16px;
+  }
+
+  .jtnp-area-page .rank {
+    padding: 16px 18px;
+    gap: 16px;
+  }
+
+  .jtnp-area-page .sec-ranking .ranks {
+    gap: 14px;
+  }
+
+  .jtnp-area-page .sec-official {
+    column-gap: 32px;
+  }
+
+  .jtnp-area-page .sec-official .ext {
+    padding: 26px;
+  }
+
+  /* desktop rail: wider card, controls sized up slightly. Same horizontal
+     scroll structure as tablet, not a new layout. */
+  .jtnp-area-page .ig3 {
+    flex-basis: 380px;
+    width: 380px;
+  }
+
+  .jtnp-area-page .igprev,
+  .jtnp-area-page .ignext {
+    width: 42px;
+    height: 42px;
+  }
+
+  .jtnp-area-page .sec-news .nw-i {
+    width: 84px;
+    height: 84px;
+  }
+
+  .jtnp-area-page .sec-news .news {
+    padding: 20px 4px;
+    gap: 20px;
+  }
+
+  .jtnp-area-page .sec-news .nw-b b {
+    font-size: 15.5px;
+  }
+
+  .jtnp-area-page .sec-news .nw-d {
+    font-size: 11px;
+  }
+
+  .jtnp-area-page .snssec {
+    padding: 64px var(--jtnp-pad);
+  }
+
+  .jtnp-area-page .snssec .sns-t {
+    font-size: 30px;
+  }
+
+  .jtnp-area-page .snssec .sns {
+    width: 52px;
+    height: 52px;
+  }
+
+  .jtnp-area-page .jp-b {
+    padding: 112px var(--jtnp-pad) 118px;
+  }
+
+  .jtnp-area-page .jp-t {
+    font-size: 44px;
+  }
+
+  .jtnp-area-page .footer {
+    padding: 72px var(--jtnp-pad) 60px;
+  }
+
+  .jtnp-area-page .ft-logo {
+    font-size: 26px;
+  }
+
+  /* The Spoon / Where to Buy */
+  .jtnp-area-page .sec-spoon .product {
+    padding: 32px;
+    gap: 40px;
+  }
+
+  .jtnp-area-page .sec-spoon .pd-img {
+    width: 262px;
+  }
+
+  .jtnp-area-page .sec-spoon .pd-b {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .jtnp-area-page .sec-spoon .pd-n {
+    font-size: 22px;
+    grid-area: 1 / 1;
+    margin-bottom: 12px;
+  }
+
+  .jtnp-area-page .sec-spoon .pd-line {
+    grid-area: 2 / 1;
+    max-width: 46ch;
+  }
+
+  .jtnp-area-page .sec-spoon .pd-price {
+    grid-area: 1 / 2 / 3 / 3;
+    margin: 0;
+    font-size: 30px;
+  }
+
+  .jtnp-area-page .sec-spoon .stores {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+}
+
+/* ------------------------------- Large Desktop refinement: >= 1200px
+   Spacing / control-position nudges ONLY. No grid-template-columns, no
+   display change, no new card width: the Desktop layout shape from the
+   992px tier stays exactly as it is. */
+@media (min-width: 1200px) {
+  .jtnp-area-page .igtop {
+    gap: 20px;
+  }
+
+  .jtnp-area-page .feed3 {
+    gap: 28px;
+  }
+
+  .jtnp-area-page .igprev,
+  .jtnp-area-page .ignext {
+    width: 44px;
+    height: 44px;
+  }
+
+  .jtnp-area-page .sec-news .news {
+    padding: 22px 4px;
+  }
+
+  .jtnp-area-page .sec-news .newslist {
+    gap: 2px;
+  }
+
+  .jtnp-area-page .jtnp-explore-blk .wf-ex {
+    gap: 40px;
+  }
+}
+
+/* ------------------------------------------------------------- motion */
+@media (prefers-reduced-motion: reduce) {
+  .jtnp-area-page .jtnp-area *,
+  .jtnp-area-page .jtnp-area *::before,
+  .jtnp-area-page .jtnp-area *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

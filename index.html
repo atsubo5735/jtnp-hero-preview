@@ -3,138 +3,444 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JTNP HOME HERO — YouTube Full-Screen Prototype</title>
+<title>JTNP HOME — Full-Page Prototype (YouTube HERO)</title>
 
 <!--
-  JTNP HOME HERO — YouTube full-screen background prototype
-  -----------------------------------------------------------------------
-  STANDALONE PROTOTYPE ONLY. Not part of the WordPress theme. Nothing in
-  this directory is wired into lightning-child; it exists purely so the
-  HERO-as-video concept can be reviewed in a browser before any decision
-  is made about porting it into the theme.
+  JTNP HOME — full-page standalone prototype
+  =======================================================================
+  STANDALONE PROTOTYPE ONLY. Not part of the WordPress theme, not wired
+  into lightning-child, and WordPress production is NOT modified by this
+  file in any way.
 
-  Reference (Source of Truth, read-only, not modified):
+  Source of Truth (READ-ONLY, not modified):
     JTNP_Lightning_Child_0.9.20_wpml-final-live-test_20260905.zip
-    - template-parts/jtnp/national/hero.php   (current HOME Hero Slider)
-    - template-parts/jtnp/appbar.php          (current App Bar, shared)
-    - assets/css/jtnp-national.css            (.jtnp-national-hero / .hs-*)
-    - assets/css/jtnp-area.css                (.appbar / .ab-* / tokens / .btn)
+    Theme Version 0.9.20
 
-  Text content, fonts, colors and spacing below intentionally mirror the
-  current Slide 1 (“JAPAN”) Hero content and the current App Bar, per the
-  brief. The transparent→dark App Bar scroll behaviour is NEW for this
-  prototype (the production App Bar is currently always dark) — it exists
-  here only to demonstrate the requested overlay effect.
+  Design intent: reproduce the CURRENT HOME design (App Bar -> Hero ->
+  News -> About(JTNP) -> Explore Japan -> Spoon Collection -> Official SNS
+  -> Member CTA -> B2B -> Footer, front-page.php's own fixed section
+  order) as exactly as a static page can, changing ONLY:
+
+    1. HERO background -> full-screen YouTube video (id wGupxN7yHWI)
+    2. App Bar over the HERO -> transparent, then the theme's own dark
+       App Bar background once scrolled past the HERO
+
+  Every other section's markup/classes below mirrors its PHP template in
+  the Source of Truth 1:1 (template-parts/jtnp/*.php), styled by the
+  THEME'S OWN, UNMODIFIED assets/css/jtnp-area.css + jtnp-national.css
+  (copied verbatim into assets/css/ alongside this file) — nothing here
+  re-implements or re-approximates that CSS. Only assets/css/hero-override.css
+  is new, and it touches ONLY the two allowed HERO/App-Bar-over-HERO changes
+  above; it must never restyle any other Global Component.
+
+  Content is static sample copy taken from the Source of Truth's own PHP
+  data functions (inc/jtnp-national-data.php, inc/jtnp-global-data.php,
+  inc/jtnp-area-data.php, inc/jtnp-map-areas-seed.php,
+  inc/jtnp-spoon-collection-seed.php) — the same strings/sample rows the
+  real theme itself falls back to — never invented copy. No CMS/DB runs
+  here, so anything WordPress would normally query live is this same
+  static sample data instead.
 -->
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+JP:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/css/jtnp-area.css">
+<link rel="stylesheet" href="assets/css/jtnp-national.css">
+<link rel="stylesheet" href="assets/css/hero-override.css">
 </head>
-<body>
+<body class="jtnp-area-page">
+<div class="jtnp-area" id="main" role="main">
 
-<!-- =======================================================================
-     HERO — full-bleed YouTube background, fullscreen first view
-     Layer order (back to front):
-       1. fallback / poster (gold-tinted gradient, matches .jtnp-img-missing)
-       2. YouTube iframe (cover-cropped, centered, pointer-events:none)
-       3. dark overlay (readability gradient)
-       4. hero center text
-       5. App Bar (separate section below, z-index above hero)
-     ======================================================================= -->
-<section class="hero" data-hero>
+  <!-- =====================================================================
+       APP BAR — template-parts/jtnp/appbar.php, unmodified structure.
+       ONLY the transparent(over Hero)->dark(on scroll) behaviour is new
+       (hero-override.css + hero.js), per brief item 3.
+       ===================================================================== -->
+  <section class="blk jtnp-appbar-blk">
+    <div class="appbar" data-jtnp-appbar>
+      <div class="ab-left">
+        <a class="jtnp" href="index.html" aria-label="JTNP ホーム">JTNP</a>
+      </div>
 
-  <!-- 1. Fallback / poster layer. Shown immediately, stays visible until the
-       iframe reports it has loaded, and reappears automatically whenever the
-       video is hidden (reduced-motion, slow connection, iframe failure). The
-       current theme has no uploaded Hero photo yet (.jtnp-img-missing design
-       placeholder is what actually renders live today), so this prototype
-       reuses that exact gold-tinted gradient rather than inventing a new
-       placeholder. -->
-  <div class="hero-fallback" data-hero-fallback aria-hidden="true"></div>
+      <ul class="ab-nav" id="jtnp-ab-nav" data-jtnp-nav>
+        <li><a href="#jtnp-explore" data-jtnp-nav-link>地図から探す</a></li>
+        <li><a href="#jtnp-collection" data-jtnp-nav-link>エリア一覧</a></li>
+        <li><a href="#jtnp-news" data-jtnp-nav-link>お知らせ</a></li>
+        <li><a href="#jtnp-about" data-jtnp-nav-link>サイトについて</a></li>
+      </ul>
 
-  <!-- 2. YouTube background video. decorative only: no title text, no focus,
-       no pointer interaction. Sized larger than the viewport on whichever
-       axis is needed so the 16:9 frame always covers the viewport with no
-       letterboxing, then centered with translate(-50%,-50%). -->
-  <div class="hero-video" data-hero-video aria-hidden="true">
-    <iframe
-      data-hero-iframe
-      src=""
-      data-src="https://www.youtube.com/embed/wGupxN7yHWI?autoplay=1&mute=1&loop=1&playlist=wGupxN7yHWI&controls=0&playsinline=1&rel=0&modestbranding=1&disablekb=1&iv_load_policy=3&enablejsapi=0"
-      title=""
-      tabindex="-1"
-      aria-hidden="true"
-      allow="autoplay; encrypted-media"
-      frameborder="0"
-    ></iframe>
-  </div>
+      <div class="ab-right">
+        <!-- jtnp_the_language_button(): current language is Japanese, so the
+             destination shown is the theme's own short label for English
+             ("EN") plus the same inline globe SVG jtnp_globe_icon() renders.
+             Link target is a dummy anchor in this prototype. -->
+        <a class="ab-lang" href="#" hreflang="en" lang="en" rel="alternate" aria-label="EN に切り替える">
+          <svg class="i" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.2 2.4 3.3 5.4 3.3 8.5S14.2 18.1 12 20.5c-2.2-2.4-3.3-5.4-3.3-8.5S9.8 5.9 12 3.5Z"/></svg>
+          EN
+        </a>
 
-  <!-- 3. Dark overlay — readability only, not a design change. Tuned close
-       to .jtnp-national-hero .hs-fade's bottom-weighted gradient, just a
-       touch stronger overall since there is no slide-level .hs-fade behind
-       the text here. -->
-  <div class="hero-overlay" aria-hidden="true"></div>
+        <a class="btn primary sm ab-join" href="#">会員登録</a>
 
-  <!-- 4. Hero center text — same copy, DOM order and roles as the current
-       Slide 1 (JAPAN) markup in template-parts/jtnp/national/hero.php:
-       eyebrow → h1(JP) → EN → lead → CTA. -->
-  <div class="hero-text">
-    <p class="eyebrow">A Journey Through Japan</p>
-    <h1 class="hero-jp">日本</h1>
-    <p class="hero-en">JAPAN</p>
-    <p class="hero-lead">日本全国の観光地を、1本のスプーンから。</p>
-    <a class="btn primary hero-cta" href="#prototype-content">地図から探す</a>
-  </div>
+        <a class="btn text ab-login" href="#">
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>
+          ログイン
+        </a>
 
-</section>
+        <button
+          type="button"
+          class="ab-navtoggle"
+          data-jtnp-nav-toggle
+          aria-expanded="false"
+          aria-controls="jtnp-ab-nav"
+          aria-label="メニューを開く"
+          data-label-open="メニューを開く"
+          data-label-close="メニューを閉じる"
+        >
+          <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
 
-<!-- =======================================================================
-     App Bar — overlays the Hero; transparent at top, dark after scroll.
-     Markup mirrors template-parts/jtnp/appbar.php's structure (.appbar /
-     .ab-left / .ab-nav / .ab-right) with representative labels; it is not a
-     feature-complete rebuild (no language switcher logic, no WPML), just
-     enough to judge the overlay look against the video.
-     ======================================================================= -->
-<header class="appbar" data-appbar>
-  <div class="ab-left">
-    <a class="jtnp" href="#" aria-label="JTNP ホーム">JTNP</a>
-  </div>
+  <!-- =====================================================================
+       HERO — template-parts/jtnp/national/hero.php's Slide 1 (JAPAN) text,
+       DOM order and classes (.hs-slide/.hs-fade/.hs-text/.eyebrow/.hs-jp/
+       .hs-en/.hs-lead/.hs-cta), with its background image replaced by the
+       full-screen YouTube video per brief item 1. No slider/dots/swipe —
+       this is the one allowed background change, not a new component.
+       ===================================================================== -->
+  <section class="blk jtnp-hero-blk jtnp-national-hero jtnp-hero-video-blk">
+    <div class="hs-slides">
+      <div class="hs-slide active hero-video-slide" data-hero>
 
-  <ul class="ab-nav" id="proto-ab-nav" data-nav>
-    <li><a href="#prototype-content">地図から探す</a></li>
-    <li><a href="#prototype-content">エリア一覧</a></li>
-    <li><a href="#prototype-content">お知らせ</a></li>
-    <li><a href="#prototype-content">サイトについて</a></li>
-  </ul>
+        <!-- Fallback / poster layer: the theme's own "missing image" surface
+             token (--jtnp-surf2, same as .jtnp-img-missing / .rimg's own
+             empty background-color) since no Hero photo swap is in scope
+             here — shown until the video is confirmed PLAYING, and again any
+             time autoplay fails. -->
+        <div class="hero-fallback" data-hero-fallback aria-hidden="true"></div>
 
-  <div class="ab-right">
-    <a class="ab-lang" href="#" aria-label="English">EN</a>
-    <a class="btn primary sm ab-join" href="#prototype-content">会員登録</a>
-    <a class="btn text ab-login" href="#prototype-content">ログイン</a>
-    <button
-      type="button"
-      class="ab-navtoggle"
-      data-nav-toggle
-      aria-expanded="false"
-      aria-controls="proto-ab-nav"
-      aria-label="メニューを開く"
-      data-label-open="メニューを開く"
-      data-label-close="メニューを閉じる"
-    >☰</button>
-  </div>
-</header>
+        <!-- YouTube background video. IFrame Player API driven (assets/js/hero.js):
+             created at opacity:0, faded in only after the Player API reports
+             state PLAYING, so the visitor never sees YouTube's own initial
+             play/pause/scrub control flash. pointer-events:none, controls=0,
+             autoplay, mute, playsinline, loop via playlist=self. -->
+        <div class="hero-video" data-hero-video aria-hidden="true">
+          <div id="jtnp-hero-yt" data-hero-yt-mount></div>
+        </div>
 
-<!-- =======================================================================
-     Dummy content below the fold — scroll target only, to confirm the App
-     Bar's transparent → dark transition. Not a reproduction of the real
-     HOME sections (News / About / Explore / Collection / SNS / Member / B2B
-     / Footer) — those are untouched production content and out of scope.
-     ======================================================================= -->
-<section class="prototype-content" id="prototype-content">
-  <h2>Scroll check section</h2>
-  <p>このセクションはApp Barのtransparent → dark切り替え確認用のダミーです。本番のHOMEセクション（News / About / Explore / Collectionなど）はこのプロトタイプには含まれていません。</p>
-  <p>Scroll back to the top to see the App Bar return to transparent over the video.</p>
-</section>
+        <div class="hs-fade" aria-hidden="true"></div>
 
-<script src="script.js"></script>
+        <div class="hs-text">
+          <p class="eyebrow">A Journey Through Japan</p>
+          <h1 class="hs-jp">日本</h1>
+          <p class="hs-en">JAPAN</p>
+          <p class="hs-lead">日本全国の観光地を、1本のスプーンから。</p>
+          <a class="btn hs-cta" href="#jtnp-explore">地図から探す</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       NEWS — template-parts/jtnp/news.php + news-item.php.
+       National HOME copy (front-page.php's own $args) + jtnp_area_legacy_news()
+       sample rows (inc/jtnp-area-data.php) as representative sample content,
+       with the Area Badge slot shown (show_badge => true on the national top).
+       ===================================================================== -->
+  <section class="blk jtnp-news-blk" id="jtnp-news">
+    <div class="sec sec-news">
+      <p class="eyebrow">最新情報</p>
+      <h2 class="sec-t">ニュース</h2>
+
+      <div class="newslist">
+        <a class="news" href="#">
+          <img class="rimg nw-i" src="assets/images/content/kobe-night.jpg" alt="神戸ポートタワーの屋上デッキ、夏季の営業時間を延長" loading="lazy">
+          <span class="nw-b">
+            <span class="nw-d">
+              <time datetime="2026-08-18">08/18/2026</time>
+              <span class="nw-badge">神戸</span>
+            </span>
+            <b>神戸ポートタワーの屋上デッキ、夏季の営業時間を延長</b>
+          </span>
+          <span class="nw-a" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></span>
+        </a>
+        <a class="news" href="#">
+          <img class="rimg nw-i" src="assets/images/content/spoon.jpg" alt="神戸スプーン、ハーバーランド umie で取り扱い開始" loading="lazy">
+          <span class="nw-b">
+            <span class="nw-d">
+              <time datetime="2026-08-09">08/09/2026</time>
+              <span class="nw-badge">神戸</span>
+            </span>
+            <b>神戸スプーン、ハーバーランド umie で取り扱い開始</b>
+          </span>
+          <span class="nw-a" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></span>
+        </a>
+        <a class="news" href="#">
+          <img class="rimg nw-i" src="assets/images/content/gourmet.jpg" alt="英語で注文できる神戸牛のお店5選" loading="lazy">
+          <span class="nw-b">
+            <span class="nw-d">
+              <time datetime="2026-07-28">07/28/2026</time>
+              <span class="nw-badge">神戸</span>
+            </span>
+            <b>英語で注文できる神戸牛のお店5選</b>
+          </span>
+          <span class="nw-a" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></span>
+        </a>
+      </div>
+
+      <a class="btn ghost wide" href="#">ニュース一覧を見る</a>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       ABOUT JTNP — template-parts/jtnp/national/about.php's 3-step journey.
+       ===================================================================== -->
+  <section class="blk jtnp-national-about" id="jtnp-about">
+    <div class="sec">
+      <p class="eyebrow">About JTNP</p>
+      <h2 class="sec-t">スプーンから始まる、日本の旅</h2>
+      <p class="body about-lead">JTNP-SOUVENIRは、日本各地の観光地をかたどったスーベニアスプーンのプロジェクト。購入したスプーンのQRからその土地を知り、集めるほど旅が広がります。</p>
+
+      <div class="journey">
+        <article class="jstep jstep-buy">
+          <div class="jstep-media">
+            <img class="rimg" src="assets/images/about/about-step-01-spoon.png" width="1200" height="900" alt="QRコード付きJTNPスーベニアスプーン" loading="lazy" decoding="async">
+          </div>
+          <div class="jstep-body">
+            <span class="jstep-no">01</span>
+            <h3 class="jstep-t">旅先でスプーンを手に入れる</h3>
+            <p class="jstep-d">日本各地の観光地をモチーフにした、JTNPスーベニアスプーン。</p>
+          </div>
+        </article>
+        <div class="jstep-arrow" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 9 7 7 7-7"/></svg></div>
+
+        <article class="jstep jstep-scan">
+          <div class="jstep-media">
+            <img class="rimg" src="assets/images/about/about-step-02-discover.png" width="1200" height="900" alt="QRコードから表示される神戸観光ページ" loading="lazy" decoding="async">
+          </div>
+          <div class="jstep-body">
+            <span class="jstep-no">02</span>
+            <h3 class="jstep-t">QRから、その土地を知る</h3>
+            <p class="jstep-d">スプーンのQRコードをスマートフォンで読み取り、その地域の観光情報へアクセス。</p>
+          </div>
+        </article>
+        <div class="jstep-arrow" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 9 7 7 7-7"/></svg></div>
+
+        <article class="jstep jstep-collect">
+          <div class="jstep-media">
+            <img class="rimg" src="assets/images/about/about-step-03-collect.png" width="1200" height="900" alt="スプーンコレクションのマイページ" loading="lazy" decoding="async">
+          </div>
+          <div class="jstep-body">
+            <span class="jstep-no">03</span>
+            <h3 class="jstep-t">集めるほど、旅が広がる</h3>
+            <p class="jstep-d">会員登録して各地のスプーンをコレクション。集めた数などに応じた特典も予定しています。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       EXPLORE JAPAN — template-parts/jtnp/explore.php. PHP-rendered static
+       chrome only; assets/js/jtnp-map-data.js (untouched geometry) +
+       assets/js/jtnp-explore-map.js (untouched interaction) +
+       assets/js/jtnp-map-cms-seed.js (this prototype's static stand-in for
+       the live jtnp_map_area CPT query) build the MAP/pins/Prefecture
+       Selector/Area cards exactly as production does.
+       ===================================================================== -->
+  <section class="blk jtnp-explore-blk" id="jtnp-explore">
+    <div class="sec">
+      <p class="eyebrow">Explore Japan</p>
+      <h2 class="sec-t">地図から探す</h2>
+      <p class="body explore-lead">都道府県を選ぶと、その中の観光地が表示されます。地図を使わずに一覧から選ぶこともできます。</p>
+
+      <div class="wf-ex" data-jtnp-explore>
+        <div class="mapwrap" data-st="japan" data-jtnp-mapwrap>
+          <div class="mapstage">
+            <div class="mapbar">
+              <button class="backbtn" type="button" data-jtnp-back>← 日本全国へ戻る</button>
+              <span class="crumb" data-jtnp-crumb>日本全国</span>
+            </div>
+            <svg data-jtnp-map viewBox="0 0 100 100" role="img" aria-label="日本地図。都道府県を選択できます。"></svg>
+            <div class="pinlayer" data-jtnp-pins></div>
+          </div>
+          <div class="legend">
+            <span><i class="lg-on"></i>対応中</span>
+            <span><i class="lg-soon"></i>近日公開</span>
+            <span><i class="lg-off"></i>準備中</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div data-jtnp-s0>
+            <p class="sublab">都道府県から選ぶ</p>
+            <p class="body" style="font-size:11.5px;margin:4px 0 10px">地図と同じ情報です。どちらから選んでも同じ場所に移動します。</p>
+            <div class="rail" data-jtnp-rail></div>
+            <div class="acc" data-jtnp-acc>
+              <b role="button" tabindex="0" aria-expanded="false" data-jtnp-acc-toggle>すべての都道府県を見る<span aria-hidden="true">＋</span></b>
+              <div class="reglist" data-jtnp-reglist></div>
+            </div>
+          </div>
+
+          <div data-jtnp-s1 hidden>
+            <p class="sublab" data-jtnp-s1lab>Areas</p>
+            <div class="areahead">
+              <h4 data-jtnp-s1name></h4>
+              <span class="cnt" data-jtnp-s1cnt></span>
+            </div>
+            <div class="acards" data-jtnp-acards></div>
+            <div class="empty" data-jtnp-empty hidden>
+              <b>エリアは準備中です</b>
+              この都道府県の観光地ページは、公開の準備を進めています。
+            </div>
+
+            <div class="prev" data-jtnp-prev>
+              <div class="ph" data-jtnp-prevphoto></div>
+              <p class="pt" data-jtnp-prevjp></p>
+              <p class="pe" data-jtnp-preven></p>
+              <div class="prow2">
+                <a class="btn sm primary disabled" data-jtnp-prevlink aria-disabled="true">このエリアを見る →</a>
+                <span class="btn sm" data-jtnp-prevclose role="button" tabindex="0">閉じる</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SPOON COLLECTION — template-parts/jtnp/collection.php.
+       6 published rows, ported verbatim from inc/jtnp-spoon-collection-seed.php's
+       jtnp_spoon_seed_v1_data(). Never current on the national top
+       (jtnp_spoon_is_current_area() is always false there).
+       ===================================================================== -->
+  <section class="blk jtnp-collection-blk" id="jtnp-collection">
+    <div class="sec">
+      <p class="eyebrow">The Collection</p>
+      <h2 class="sec-t">スプーンのコレクション</h2>
+      <p class="body">現在つくられているスーベニアスプーンの一覧です。並び順は地理と無関係で、タップすると直接そのArea Pageへ移動します。</p>
+
+      <div class="spoonc-list">
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="assets/images/content/spoon-asakusa.png" alt="浅草 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">浅草</b><small class="spoonc-sub">東京　近日発売</small></span>
+        </a>
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="assets/images/content/spoon-yokohama-minatomirai.png" alt="横浜みなとみらい JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">横浜みなとみらい</b><small class="spoonc-sub">神奈川　近日発売</small></span>
+        </a>
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="assets/images/content/spoon-bashamichi.png" alt="馬車道 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">馬車道</b><small class="spoonc-sub">神奈川　近日発売</small></span>
+        </a>
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="assets/images/content/spoon-kiyomizu.png" alt="清水寺 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">清水寺</b><small class="spoonc-sub">京都　近日発売</small></span>
+        </a>
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="assets/images/content/spoon-osaka-castle.png" alt="大阪城 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">大阪城</b><small class="spoonc-sub">大阪　近日発売</small></span>
+        </a>
+        <a class="spoonc-card" href="kobe-area-preview.html">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="assets/images/content/spoon-kobe.png" alt="神戸 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">神戸</b><small class="spoonc-sub">兵庫　発売中</small></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       OFFICIAL SNS — template-parts/jtnp/sns.php.
+       ===================================================================== -->
+  <section class="blk jtnp-sns-blk">
+    <div class="sec snssec">
+      <p class="eyebrow">Stay Connected</p>
+      <p class="sns-t">Follow JTNP</p>
+      <div class="snsrow">
+        <a class="sns" href="https://www.instagram.com/jtnp_souvenir/" target="_blank" rel="noopener noreferrer" aria-label="Instagram でJTNPをフォロー">
+          <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a class="sns" href="https://www.facebook.com/61593997073890" target="_blank" rel="noopener noreferrer" aria-label="Facebook でJTNPをフォロー">
+          <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.5 21v-8h2.7l.5-3.2h-3.2V7.7c0-.9.3-1.6 1.7-1.6h1.7V3.2A22 22 0 0 0 15.3 3c-2.5 0-4.2 1.5-4.2 4.3v2.5H8.3V13h2.8v8Z"/></svg>
+        </a>
+        <a class="sns" href="https://x.com/jtnp_souvenir" target="_blank" rel="noopener noreferrer" aria-label="X でJTNPをフォロー">
+          <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 4h3.6l4.3 5.9L17.2 4H20l-6.6 7.6L20.4 20h-3.6l-4.6-6.3L6.6 20H4l7-8Z"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       MEMBER / COLLECTION CTA — template-parts/jtnp/member.php.
+       ===================================================================== -->
+  <section class="blk jtnp-member-blk" id="jtnp-member">
+    <div class="japan">
+      <img class="rimg jp-img" src="assets/images/content/fuji.jpg" alt="Mount Fuji, symbolic of nationwide Japan" loading="lazy">
+      <div class="jp-b">
+        <p class="eyebrow gold">Japan Tourism Networking Project</p>
+        <h2 class="jp-t">47都道府県を、<br>ひとつのコレクションに。</h2>
+        <p class="body" style="max-width:52ch;margin-left:auto;margin-right:auto">会員登録をすると、集めたスプーンをMy Pageに記録できるようになります。訪れた場所が増えるほど、コレクションが育っていきます。</p>
+        <a class="btn primary wide" href="#">会員登録 <svg class="i" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       B2B — template-parts/jtnp/national/b2b.php.
+       ===================================================================== -->
+  <section class="blk jtnp-national-b2b">
+    <div class="sec">
+      <div class="b2b">
+        <div class="b2b-bg">
+          <img class="rimg b2b-img" src="assets/images/content/spoon.jpg" alt="その土地のスーベニアスプーンを一緒につくる様子" loading="lazy">
+          <div class="b2b-overlay" aria-hidden="true"></div>
+        </div>
+        <div class="b2b-body">
+          <p class="eyebrow">For Local Business</p>
+          <h2 class="sec-t" style="margin-bottom:5px">観光地のスプーンを作りませんか？</h2>
+          <p class="body">各地域の店舗・自治体の皆さまへ。その土地のスーベニアスプーンを一緒に企画します。</p>
+          <a class="btn primary" href="#">お問い合わせ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       FOOTER — template-parts/jtnp/footer.php.
+       ===================================================================== -->
+  <section class="blk jtnp-footer-blk">
+    <div class="footer">
+      <p class="ft-logo"><a class="ft-logo-link" href="index.html" aria-label="JTNP ホーム">JTNP</a></p>
+      <p class="ft-sub">Japan Tourism Networking Project</p>
+
+      <div class="ft-links">
+        <a class="ft-link" href="#jtnp-about">サイトについて</a>
+        <a class="ft-link" href="#jtnp-explore">地図から探す</a>
+        <a class="ft-link" href="#jtnp-news">お知らせ</a>
+        <span class="ft-link">プライバシー</span>
+        <span class="ft-link">お問い合わせ</span>
+      </div>
+
+      <div class="ft-login">
+        <a class="btn primary sm ft-join" href="#">会員登録</a>
+        <a class="btn text ft-loginlink" href="#">
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>
+          ログイン
+        </a>
+      </div>
+
+      <p class="ft-c">&copy; Brainsfarm Co., Ltd.</p>
+    </div>
+  </section>
+
+</div><!-- [ /.jtnp-area ] -->
+
+<script src="assets/js/jtnp-appbar.js"></script>
+<script src="assets/js/jtnp-area.js"></script>
+<script src="assets/js/jtnp-map-data.js"></script>
+<script src="assets/js/jtnp-map-cms-seed.js"></script>
+<script src="assets/js/jtnp-explore-map.js"></script>
+<script src="assets/js/hero.js"></script>
 </body>
 </html>
