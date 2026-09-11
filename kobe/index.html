@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JTNP KOBE — Full-Page Prototype (MP4 HERO)</title>
+
+<!--
+  JTNP KOBE (/kobe/) — full-page standalone prototype
+  =======================================================================
+  STANDALONE PROTOTYPE ONLY. Not part of the WordPress theme, not wired
+  into lightning-child, and WordPress production is NOT modified by this
+  file in any way. The sibling HOME prototype (../index.html, its YouTube
+  HERO and its own assets/js/hero.js) is also untouched by this page.
+
+  Source of Truth (READ-ONLY, not modified):
+    JTNP_Lightning_Child_0.9.20_wpml-final-live-test_20260905.zip
+    Theme Version 0.9.20 — page-jtnp-area.php ("Template Name: JTNP Area
+    Page", assigned to /kobe/), template-parts/jtnp/*.php,
+    inc/jtnp-area-data.php, inc/jtnp-global-data.php,
+    inc/jtnp-popular-spots-seed.php, inc/jtnp-where-to-buy-seed.php,
+    inc/jtnp-spoon-collection-seed.php, inc/jtnp-language-switcher.php.
+
+  Section order below is page-jtnp-area.php's own $jtnp_blocks array,
+  reproduced 1:1: App Bar -> Hero -> Landmark -> Official Guide -> Area
+  News -> Influencer -> Ranking -> Official SNS -> Spoon Collection ->
+  Explore Japan -> Area Spoon (Where to Buy) -> Member CTA -> Footer.
+
+  Changed from production, per this task's brief, ONLY:
+    1. HERO background: static photo -> full-viewport HTML5 <video>
+       (../assets/video/kobe-hero.mp4, muted/loop/playsinline, no audio).
+    2. HERO center copy: reduced to the 4 confirmed lines (eyebrow / 神戸 /
+       HYOGO, JAPAN / description) instead of production's 5-line eyebrow +
+       hero-jp + hero-en + hero-sub + hero-lead stack — see
+       assets/css/kobe-hero-override.css's own docblock.
+    3. App Bar: transparent over the HERO, the theme's own dark background
+       once scrolled past it (same technique ../index.html already uses for
+       HOME; independent script, assets/js/kobe-hero.js).
+
+  Every other section's markup/classes mirrors its PHP template in the
+  Source of Truth 1:1, styled by the THEME'S OWN, UNMODIFIED
+  assets/css/jtnp-area.css (byte-identical to the Source of Truth ZIP —
+  already verified against ../assets/css/jtnp-area.css, which the HOME
+  prototype also uses unmodified). Only assets/css/kobe-hero-override.css
+  is new for this page.
+
+  Content is static sample copy taken from the Source of Truth's own PHP
+  data functions/seed files — the same strings/sample rows the real theme
+  itself falls back to when no CMS is running, never invented copy:
+
+    - Landmark / Official Guide / News (legacy KOBE fallback) / Influencer
+      permalinks: inc/jtnp-area-data.php's own jtnp_area_legacy_*() sources.
+    - Ranking: inc/jtnp-popular-spots-seed.php's jtnp_spot_seed_v1_data() —
+      KOBE's 5 confirmed seed ranks (1-5). Production's own
+      template-parts/jtnp/ranking.php only renders once all 10 ranks exist,
+      so live /kobe/ does not currently show this section at all; the 5
+      confirmed seed rows are shown here as sample content per this task's
+      instruction to reuse seed/fallback data, not because production
+      renders 10.
+    - Area Spoon / Where to Buy: inc/jtnp-area-data.php's
+      jtnp_area_legacy_spoon_product() + inc/jtnp-where-to-buy-seed.php's
+      3 KOBE seed stores (no Map/Site URLs yet, same as the CMS seed).
+    - Spoon Collection / Explore Japan / Member CTA / Official SNS: the same
+      shared Global Component data ../index.html (HOME) already renders,
+      with KOBE's own card marked current/aria-current here instead.
+    - App Bar language switcher: renders NOTHING, matching
+      inc/jtnp-language-switcher.php's own documented current-production
+      state for /kobe/ ("no English translation in wp_icl_translations" ->
+      jtnp_the_language_button() returns without printing anything). This
+      is deliberate — see that file's docblock — not an omission, and it
+      is what avoids repeating an earlier HOME-prototype mistake of
+      showing a language pill production does not actually show here.
+
+  No Media Library attachment exists in this static prototype for the
+  Ranking spot photos or the Where-to-Buy store photos (no CMS runs here to
+  resolve them, and none were part of this task's asset set) — those slots
+  render production's own defined "missing image" degrade
+  (.jtnp-img-missing, assets/css/jtnp-area.css), exactly like an
+  unresolved Media Library slug does on the real site. No image was
+  generated to fill them, per this task's explicit image policy.
+-->
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+JP:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../assets/css/jtnp-area.css">
+<link rel="stylesheet" href="../assets/css/kobe-hero-override.css">
+</head>
+<body class="jtnp-area-page">
+<div class="jtnp-area" id="main" role="main">
+
+  <!-- =====================================================================
+       APP BAR — template-parts/jtnp/appbar.php, unmodified structure.
+       Shared Global Component, same file/CSS as ../index.html (HOME).
+       The language switcher slot is intentionally empty — see docblock.
+       ===================================================================== -->
+  <section class="blk jtnp-appbar-blk">
+    <div class="appbar" data-jtnp-appbar>
+      <div class="ab-left">
+        <a class="jtnp" href="../index.html" aria-label="JTNP ホーム">JTNP</a>
+      </div>
+
+      <ul class="ab-nav" id="jtnp-ab-nav" data-jtnp-nav>
+        <li><a href="#jtnp-explore" data-jtnp-nav-link>地図から探す</a></li>
+        <li><a href="#jtnp-collection" data-jtnp-nav-link>エリア一覧</a></li>
+        <li><a href="#jtnp-news" data-jtnp-nav-link>お知らせ</a></li>
+        <li><a href="../index.html#jtnp-about" data-jtnp-nav-link>サイトについて</a></li>
+      </ul>
+
+      <div class="ab-right">
+        <!-- jtnp_the_language_button(): no English translation exists for
+             /kobe/ yet, so this renders nothing at all — no pill, no
+             placeholder. See the top-of-file docblock. -->
+
+        <a class="btn primary sm ab-join" href="#">会員登録</a>
+
+        <a class="btn text ab-login" href="#">
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>
+          ログイン
+        </a>
+
+        <button
+          type="button"
+          class="ab-navtoggle"
+          data-jtnp-nav-toggle
+          aria-expanded="false"
+          aria-controls="jtnp-ab-nav"
+          aria-label="メニューを開く"
+          data-label-open="メニューを開く"
+          data-label-close="メニューを閉じる"
+        >
+          <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       HERO — template-parts/jtnp/hero.php's own .hero/.hero-frame/
+       .hero-body/.scrollcue structure, background swapped for a
+       full-viewport HTML5 <video> (brief item 3), text reduced to the 4
+       confirmed lines (brief item 12/13). assets/js/kobe-hero.js drives
+       play/pause + the App-Bar-over-HERO scroll state.
+       ===================================================================== -->
+  <section class="blk jtnp-hero-blk jtnp-kobe-hero-blk">
+    <div class="hero">
+      <div class="hero-fallback" aria-hidden="true"></div>
+
+      <video
+        class="hero-video-el"
+        data-hero-video
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        aria-hidden="true"
+      >
+        <source src="../assets/video/kobe-hero.mp4" type="video/mp4">
+      </video>
+
+      <div class="hero-frame" aria-hidden="true"></div>
+
+      <div class="hero-body">
+        <p class="eyebrow gold">A Journey Through Japan</p>
+        <p class="khero-title">神戸</p>
+        <p class="khero-region">HYOGO, JAPAN</p>
+        <p class="khero-lead">Kobe is a port city where the mountains and sea are close at hand. With history and nature all around, the waterfront glows beautifully at night.</p>
+      </div>
+
+      <a class="scrollcue" href="#jtnp-landmark">
+        <span>神戸を知る</span>
+        <i></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       LANDMARK — template-parts/jtnp/landmark.php.
+       ===================================================================== -->
+  <section class="blk jtnp-landmark-blk" id="jtnp-landmark">
+    <div class="sec sec-landmark">
+      <p class="eyebrow">神戸を代表するスポット</p>
+      <h2 class="sec-t">神戸ポートタワー<br>＆ ハーバーランド</h2>
+
+      <img class="rimg landmark-pic photo r16" src="../assets/images/content/kobe-night.jpg" alt="Kobe Port Tower and Harborland at night" loading="eager">
+
+      <p class="body">1963年から神戸の海辺を見守ってきた、高さ108mの赤い鉄塔。2024年のリニューアルで屋上デッキが誕生しました。隣接するハーバーランドは、買い物と食事、そして水面に映る灯りを楽しめる夜のエリアです。</p>
+
+      <div class="chips">
+        <span class="chip">
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5" cy="5" r="2"/><path d="m5 8-2 5 3 2v6"/><path d="m8 12 3-2 3 3 3-1"/><path d="M9 21l2-5"/></svg>
+          JR神戸駅から徒歩10分
+        </span>
+        <span class="chip opt">
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          タワー 9:00〜23:00
+        </span>
+      </div>
+
+      <div class="btns">
+        <a class="btn ghost" href="https://www.kobe-port-tower.com/en/" target="_blank" rel="noopener noreferrer">
+          ポートタワー 公式サイト
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+        </a>
+        <a class="btn ghost" href="https://harborland.co.jp.e.abt.hp.transer.com" target="_blank" rel="noopener noreferrer">
+          ハーバーランド 公式サイト
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+        </a>
+        <a class="btn ghost" href="https://maps.app.goo.gl/1a7qvyhzXwKSaGLZ7" target="_blank" rel="noopener noreferrer">
+          地図で見る
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       OFFICIAL GUIDE — template-parts/jtnp/official.php.
+       ===================================================================== -->
+  <section class="blk jtnp-official-blk">
+    <div class="sec sec-official">
+      <p class="eyebrow">公式観光情報</p>
+      <h2 class="sec-t">公式ガイド</h2>
+
+      <a class="ext" href="https://www.feel-kobe.jp/en/" target="_blank" rel="noopener noreferrer">
+        <span class="ext-b">
+          <b>Feel KOBE</b>
+          <span>神戸市の公式観光サイト</span>
+          <span class="dom">feel-kobe.jp</span>
+        </span>
+        <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+      </a>
+      <a class="ext" href="https://kobe-dmo.jp" target="_blank" rel="noopener noreferrer">
+        <span class="ext-b">
+          <b>神戸観光局</b>
+          <span>神戸の観光を担う公式団体</span>
+          <span class="dom">kobe-dmo.jp</span>
+        </span>
+        <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       AREA NEWS — template-parts/jtnp/news.php + news-item.php.
+       KOBE's own news (jtnp_area_news_source_slug() default 'kobe-news' has
+       no live posts here, so this is the legacy KOBE sample fallback,
+       jtnp_area_legacy_news()) — no Area Badge slot (show_badge is only
+       true on the national top).
+       ===================================================================== -->
+  <section class="blk jtnp-news-blk" id="jtnp-news">
+    <div class="sec sec-news">
+      <p class="eyebrow">最新情報</p>
+      <h2 class="sec-t">神戸ニュース</h2>
+
+      <div class="newslist">
+        <a class="news" href="#">
+          <img class="rimg nw-i" src="../assets/images/content/kobe-night.jpg" alt="神戸ポートタワーの屋上デッキ、夏季の営業時間を延長" loading="lazy">
+          <span class="nw-b">
+            <span class="nw-d">
+              <time datetime="2026-08-18">08/18/2026</time>
+            </span>
+            <b>神戸ポートタワーの屋上デッキ、夏季の営業時間を延長</b>
+          </span>
+          <span class="nw-a" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></span>
+        </a>
+        <a class="news" href="#">
+          <img class="rimg nw-i" src="../assets/images/content/spoon.jpg" alt="神戸スプーン、ハーバーランド umie で取り扱い開始" loading="lazy">
+          <span class="nw-b">
+            <span class="nw-d">
+              <time datetime="2026-08-09">08/09/2026</time>
+            </span>
+            <b>神戸スプーン、ハーバーランド umie で取り扱い開始</b>
+          </span>
+          <span class="nw-a" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></span>
+        </a>
+        <a class="news" href="#">
+          <img class="rimg nw-i" src="../assets/images/content/gourmet.jpg" alt="英語で注文できる神戸牛のお店5選" loading="lazy">
+          <span class="nw-b">
+            <span class="nw-d">
+              <time datetime="2026-07-28">07/28/2026</time>
+            </span>
+            <b>英語で注文できる神戸牛のお店5選</b>
+          </span>
+          <span class="nw-a" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></span>
+        </a>
+      </div>
+
+      <a class="btn ghost wide" href="#">ニュース一覧を見る</a>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       INFLUENCER — template-parts/jtnp/influencer.php. Instagram Official
+       Embed: 6 real permalinks (inc/jtnp-area-data.php's
+       jtnp_area_legacy_instagram()), 3 rendered + 3 parked in <template>
+       exactly as production does. assets/js/kobe-area.js runs the
+       Prev/Next rail scroll + "もっと見る" reveal + re-processes embeds.
+       ===================================================================== -->
+  <section class="blk jtnp-influencer-blk">
+    <div class="sec igsec">
+      <div class="igtop">
+        <div class="ightext">
+          <p class="eyebrow">旅人が見た神戸</p>
+          <h2 class="sec-t igt">訪れた人の目線で</h2>
+        </div>
+        <span class="igctrl">
+          <button class="igprev" type="button" aria-label="前の投稿" disabled><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></button>
+          <button class="ignext" type="button" aria-label="次の投稿"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></button>
+        </span>
+      </div>
+
+      <span class="grule" aria-hidden="true"></span>
+      <p class="igsub">実際に神戸を訪れた人たちのInstagram投稿です。</p>
+
+      <div class="feed3" id="jtnp-ig-feed">
+        <div class="ig3">
+          <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DaCxTSFTnVn/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:100%; min-width:326px; padding:0; width:100%">
+            <a href="https://www.instagram.com/reel/DaCxTSFTnVn/" target="_blank" rel="noopener noreferrer">Instagramで見る</a>
+          </blockquote>
+        </div>
+        <div class="ig3">
+          <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/C2UlJi6vdEz/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:100%; min-width:326px; padding:0; width:100%">
+            <a href="https://www.instagram.com/p/C2UlJi6vdEz/" target="_blank" rel="noopener noreferrer">Instagramで見る</a>
+          </blockquote>
+        </div>
+        <div class="ig3">
+          <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DVEBtsMiUI4/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:100%; min-width:326px; padding:0; width:100%">
+            <a href="https://www.instagram.com/p/DVEBtsMiUI4/" target="_blank" rel="noopener noreferrer">Instagramで見る</a>
+          </blockquote>
+        </div>
+      </div>
+
+      <button class="more3" type="button" id="jtnp-ig-more">
+        もっと見る
+        <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      <template class="more3src" id="jtnp-ig-more-src">
+        <div class="ig3">
+          <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DScZmZ4kY2X/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:100%; min-width:326px; padding:0; width:100%">
+            <a href="https://www.instagram.com/p/DScZmZ4kY2X/" target="_blank" rel="noopener noreferrer">Instagramで見る</a>
+          </blockquote>
+        </div>
+        <div class="ig3">
+          <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DNihiT1RFe3/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:100%; min-width:326px; padding:0; width:100%">
+            <a href="https://www.instagram.com/p/DNihiT1RFe3/" target="_blank" rel="noopener noreferrer">Instagramで見る</a>
+          </blockquote>
+        </div>
+        <div class="ig3">
+          <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DLSGGdUxymQ/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:100%; min-width:326px; padding:0; width:100%">
+            <a href="https://www.instagram.com/p/DLSGGdUxymQ/" target="_blank" rel="noopener noreferrer">Instagramで見る</a>
+          </blockquote>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       RANKING — template-parts/jtnp/ranking.php. KOBE's 5 CONFIRMED seed
+       ranks (inc/jtnp-popular-spots-seed.php's jtnp_spot_seed_v1_data()) —
+       see top-of-file docblock for why production itself does not render
+       this section yet (it gates on all 10 ranks existing). No spot photos
+       are in this prototype's asset set, so each thumbnail degrades to
+       production's own .jtnp-img-missing placeholder rather than a
+       generated image.
+       ===================================================================== -->
+  <section class="blk jtnp-ranking-blk">
+    <div class="sec sec-ranking">
+      <p class="eyebrow">訪日客に人気</p>
+      <h2 class="sec-t">神戸で人気のスポット TOP 10</h2>
+      <p class="sec-s">外国人観光客が多く訪れる場所</p>
+
+      <div class="ranks" id="jtnp-ranks-list">
+        <span class="rank">
+          <span class="rk r1">1</span>
+          <span class="rimg rk-i jtnp-img-missing" aria-hidden="true"></span>
+          <span class="rk-b">
+            <b>神戸ポートタワー</b>
+            <span class="rk-c">ランドマーク</span>
+          </span>
+        </span>
+        <span class="rank">
+          <span class="rk r2">2</span>
+          <span class="rimg rk-i jtnp-img-missing" aria-hidden="true"></span>
+          <span class="rk-b">
+            <b>神戸ハーバーランド／umie</b>
+            <span class="rk-c">ショッピング</span>
+          </span>
+        </span>
+        <span class="rank">
+          <span class="rk r3">3</span>
+          <span class="rimg rk-i jtnp-img-missing" aria-hidden="true"></span>
+          <span class="rk-b">
+            <b>北野異人館街</b>
+            <span class="rk-c">歴史・街並み</span>
+          </span>
+        </span>
+        <span class="rank">
+          <span class="rk r4">4</span>
+          <span class="rimg rk-i jtnp-img-missing" aria-hidden="true"></span>
+          <span class="rk-b">
+            <b>六甲山の夜景</b>
+            <span class="rk-c">自然・絶景</span>
+          </span>
+        </span>
+        <span class="rank">
+          <span class="rk r5">5</span>
+          <span class="rimg rk-i jtnp-img-missing" aria-hidden="true"></span>
+          <span class="rk-b">
+            <b>有馬温泉</b>
+            <span class="rk-c">温泉</span>
+          </span>
+        </span>
+      </div>
+
+      <p class="note">JTNP編集部が選定 ／ 2026年8月時点</p>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       OFFICIAL SNS — template-parts/jtnp/sns.php. Shared Global Component,
+       same file/CSS/data as ../index.html (HOME).
+       ===================================================================== -->
+  <section class="blk jtnp-sns-blk">
+    <div class="sec snssec">
+      <p class="eyebrow">Stay Connected</p>
+      <p class="sns-t">Follow JTNP</p>
+      <div class="snsrow">
+        <a class="sns" href="https://www.instagram.com/jtnp_souvenir/" target="_blank" rel="noopener noreferrer" aria-label="Instagram でJTNPをフォロー">
+          <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a class="sns" href="https://www.facebook.com/61593997073890" target="_blank" rel="noopener noreferrer" aria-label="Facebook でJTNPをフォロー">
+          <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.5 21v-8h2.7l.5-3.2h-3.2V7.7c0-.9.3-1.6 1.7-1.6h1.7V3.2A22 22 0 0 0 15.3 3c-2.5 0-4.2 1.5-4.2 4.3v2.5H8.3V13h2.8v8Z"/></svg>
+        </a>
+        <a class="sns" href="https://x.com/jtnp_souvenir" target="_blank" rel="noopener noreferrer" aria-label="X でJTNPをフォロー">
+          <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 4h3.6l4.3 5.9L17.2 4H20l-6.6 7.6L20.4 20h-3.6l-4.6-6.3L6.6 20H4l7-8Z"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SPOON COLLECTION — template-parts/jtnp/collection.php. Shared Global
+       Component, same 6 rows as ../index.html (HOME) —
+       inc/jtnp-spoon-collection-seed.php's jtnp_spoon_seed_v1_data() — but
+       here KOBE's own card is the current/aria-current one (inert span,
+       jtnp_spoon_is_current_area() true) instead of a link to this page.
+       ===================================================================== -->
+  <section class="blk jtnp-collection-blk" id="jtnp-collection">
+    <div class="sec">
+      <p class="eyebrow">The Collection</p>
+      <h2 class="sec-t">スプーンのコレクション</h2>
+      <p class="body">現在つくられているスーベニアスプーンの一覧です。並び順は地理と無関係で、タップすると直接そのArea Pageへ移動します。</p>
+
+      <div class="spoonc-list">
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="../assets/images/content/spoon-asakusa.png" alt="浅草 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">浅草</b><small class="spoonc-sub">東京　近日発売</small></span>
+        </a>
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="../assets/images/content/spoon-yokohama-minatomirai.png" alt="横浜みなとみらい JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">横浜みなとみらい</b><small class="spoonc-sub">神奈川　近日発売</small></span>
+        </a>
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="../assets/images/content/spoon-bashamichi.png" alt="馬車道 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">馬車道</b><small class="spoonc-sub">神奈川　近日発売</small></span>
+        </a>
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="../assets/images/content/spoon-kiyomizu.png" alt="清水寺 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">清水寺</b><small class="spoonc-sub">京都　近日発売</small></span>
+        </a>
+        <a class="spoonc-card soon" href="#">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="../assets/images/content/spoon-osaka-castle.png" alt="大阪城 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">大阪城</b><small class="spoonc-sub">大阪　近日発売</small></span>
+        </a>
+        <span class="spoonc-card current" aria-current="page">
+          <span class="spoonc-media"><img class="rimg spoonc-img" src="../assets/images/content/spoon-kobe.png" alt="神戸 JTNP スプーン" loading="lazy"></span>
+          <span class="spoonc-body"><b class="spoonc-name">神戸</b><small class="spoonc-sub">兵庫　発売中</small></span>
+          <span class="spoonc-badge">表示中</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       EXPLORE JAPAN — template-parts/jtnp/explore.php. Shared Global
+       Component: PHP-rendered static chrome only; assets/js/jtnp-map-data.js
+       + assets/js/jtnp-map-cms-seed.js + assets/js/jtnp-explore-map.js
+       (all unmodified, same 3 files ../index.html already loads) build the
+       MAP/pins/Prefecture Selector/Area cards.
+       ===================================================================== -->
+  <section class="blk jtnp-explore-blk" id="jtnp-explore">
+    <div class="sec">
+      <p class="eyebrow">Explore Japan</p>
+      <h2 class="sec-t">地図から探す</h2>
+      <p class="body explore-lead">都道府県を選ぶと、その中の観光地が表示されます。地図を使わずに一覧から選ぶこともできます。</p>
+
+      <div class="wf-ex" data-jtnp-explore>
+        <div class="mapwrap" data-st="japan" data-jtnp-mapwrap>
+          <div class="mapstage">
+            <div class="mapbar">
+              <button class="backbtn" type="button" data-jtnp-back>← 日本全国へ戻る</button>
+              <span class="crumb" data-jtnp-crumb>日本全国</span>
+            </div>
+            <svg data-jtnp-map viewBox="0 0 100 100" role="img" aria-label="日本地図。都道府県を選択できます。"></svg>
+            <div class="pinlayer" data-jtnp-pins></div>
+          </div>
+          <div class="legend">
+            <span><i class="lg-on"></i>対応中</span>
+            <span><i class="lg-soon"></i>近日公開</span>
+            <span><i class="lg-off"></i>準備中</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div data-jtnp-s0>
+            <p class="sublab">都道府県から選ぶ</p>
+            <p class="body" style="font-size:11.5px;margin:4px 0 10px">地図と同じ情報です。どちらから選んでも同じ場所に移動します。</p>
+            <div class="rail" data-jtnp-rail></div>
+            <div class="acc" data-jtnp-acc>
+              <b role="button" tabindex="0" aria-expanded="false" data-jtnp-acc-toggle>すべての都道府県を見る<span aria-hidden="true">＋</span></b>
+              <div class="reglist" data-jtnp-reglist></div>
+            </div>
+          </div>
+
+          <div data-jtnp-s1 hidden>
+            <p class="sublab" data-jtnp-s1lab>Areas</p>
+            <div class="areahead">
+              <h4 data-jtnp-s1name></h4>
+              <span class="cnt" data-jtnp-s1cnt></span>
+            </div>
+            <div class="acards" data-jtnp-acards></div>
+            <div class="empty" data-jtnp-empty hidden>
+              <b>エリアは準備中です</b>
+              この都道府県の観光地ページは、公開の準備を進めています。
+            </div>
+
+            <div class="prev" data-jtnp-prev>
+              <div class="ph" data-jtnp-prevphoto></div>
+              <p class="pt" data-jtnp-prevjp></p>
+              <p class="pe" data-jtnp-preven></p>
+              <div class="prow2">
+                <a class="btn sm primary disabled" data-jtnp-prevlink aria-disabled="true">このエリアを見る →</a>
+                <span class="btn sm" data-jtnp-prevclose role="button" tabindex="0">閉じる</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       AREA SPOON / WHERE TO BUY — template-parts/jtnp/area-spoon.php.
+       inc/jtnp-area-data.php's jtnp_area_legacy_spoon_product() + KOBE's 3
+       inc/jtnp-where-to-buy-seed.php stores. No store photos in this
+       prototype's asset set -> production's own missing-image placeholder;
+       Map/Site both start inert (empty URLs in the seed), same as
+       production's .mini.is-disabled state.
+       ===================================================================== -->
+  <section class="blk jtnp-area-spoon-blk">
+    <div class="sec sec-spoon">
+      <p class="eyebrow">The Spoon</p>
+      <h2 class="sec-t">Kobe Spoon</h2>
+
+      <div class="product">
+        <img class="rimg pd-img" src="../assets/images/content/spoon.jpg" alt="Smart Souvenir Spoon — Kobe Port Tower Edition">
+        <div class="pd-b">
+          <p class="pd-n">Smart Souvenir Spoon<br><span>Kobe Port Tower Edition</span></p>
+          <p class="pd-line">The souvenir that brought you here. Scan it again anytime to reopen this page.</p>
+          <p class="pd-price">¥1,980 <span>incl. tax</span></p>
+        </div>
+      </div>
+
+      <p class="sub-h">Where to buy</p>
+      <div class="stores">
+        <div class="store">
+          <span class="rimg st-i jtnp-img-missing" aria-hidden="true"></span>
+          <div class="st-b">
+            <b>umie MOSAIC 2F Souvenir Shop</b>
+            <span class="st-a">1-6-1 Higashikawasaki-cho, Chuo-ku</span>
+            <span class="st-l">
+              <span class="mini is-disabled"><svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.3"/></svg>Map</span>
+              <span class="mini is-disabled"><svg class="i" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>Site</span>
+            </span>
+          </div>
+        </div>
+        <div class="store">
+          <span class="rimg st-i jtnp-img-missing" aria-hidden="true"></span>
+          <div class="st-b">
+            <b>Kobe Port Tower Shop</b>
+            <span class="st-a">5-5 Hatoba-cho, Chuo-ku</span>
+            <span class="st-l">
+              <span class="mini is-disabled"><svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.3"/></svg>Map</span>
+              <span class="mini is-disabled"><svg class="i" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>Site</span>
+            </span>
+          </div>
+        </div>
+        <div class="store">
+          <span class="rimg st-i jtnp-img-missing" aria-hidden="true"></span>
+          <div class="st-b">
+            <b>JR Sannomiya Station Gift Kobe</b>
+            <span class="st-a">1-1 Kumoidoori, Chuo-ku</span>
+            <span class="st-l">
+              <span class="mini is-disabled"><svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.3"/></svg>Map</span>
+              <span class="mini is-disabled"><svg class="i" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>Site</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       MEMBER / COLLECTION CTA — template-parts/jtnp/member.php. Shared
+       Global Component, same file/CSS/data as ../index.html (HOME).
+       ===================================================================== -->
+  <section class="blk jtnp-member-blk" id="jtnp-member">
+    <div class="japan">
+      <img class="rimg jp-img" src="../assets/images/content/fuji.jpg" alt="Mount Fuji, symbolic of nationwide Japan" loading="lazy">
+      <div class="jp-b">
+        <p class="eyebrow gold">Japan Tourism Networking Project</p>
+        <h2 class="jp-t">47都道府県を、<br>ひとつのコレクションに。</h2>
+        <p class="body" style="max-width:52ch;margin-left:auto;margin-right:auto">会員登録をすると、集めたスプーンをMy Pageに記録できるようになります。訪れた場所が増えるほど、コレクションが育っていきます。</p>
+        <a class="btn primary wide" href="#">会員登録 <svg class="i" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       FOOTER — template-parts/jtnp/footer.php. Shared Global Component,
+       same file/CSS/data as ../index.html (HOME); jtnp_nav_url('about')
+       always points at the national top's own copy of that section.
+       ===================================================================== -->
+  <section class="blk jtnp-footer-blk">
+    <div class="footer">
+      <p class="ft-logo"><a class="ft-logo-link" href="../index.html" aria-label="JTNP ホーム">JTNP</a></p>
+      <p class="ft-sub">Japan Tourism Networking Project</p>
+
+      <div class="ft-links">
+        <a class="ft-link" href="../index.html#jtnp-about">サイトについて</a>
+        <a class="ft-link" href="#jtnp-explore">地図から探す</a>
+        <a class="ft-link" href="#jtnp-news">お知らせ</a>
+        <span class="ft-link">プライバシー</span>
+        <span class="ft-link">お問い合わせ</span>
+      </div>
+
+      <div class="ft-login">
+        <a class="btn primary sm ft-join" href="#">会員登録</a>
+        <a class="btn text ft-loginlink" href="#">
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>
+          ログイン
+        </a>
+      </div>
+
+      <p class="ft-c">&copy; Brainsfarm Co., Ltd.</p>
+    </div>
+  </section>
+
+</div><!-- [ /.jtnp-area ] -->
+
+<script src="../assets/js/jtnp-appbar.js"></script>
+<script src="../assets/js/jtnp-area.js"></script>
+<script src="../assets/js/jtnp-map-data.js"></script>
+<script src="../assets/js/jtnp-map-cms-seed.js"></script>
+<script src="../assets/js/jtnp-explore-map.js"></script>
+<script src="../assets/js/kobe-hero.js"></script>
+<script src="../assets/js/kobe-area.js"></script>
+<script async src="https://www.instagram.com/embed.js"></script>
+</body>
+</html>

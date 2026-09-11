@@ -1,0 +1,207 @@
+/* ===========================================================================
+   KOBE prototype — HERO / App-Bar-over-HERO override
+   ---------------------------------------------------------------------------
+   The ONLY new CSS for the /kobe/ prototype. Every other section on the page
+   is styled by the theme's own, unmodified assets/css/jtnp-area.css (copied
+   verbatim from the Source of Truth ZIP, JTNP_Lightning_Child_0.9.20). This
+   file touches ONLY:
+
+     1. The HERO section (template-parts/jtnp/hero.php's own .hero/.hero-img/
+        .hero-frame/.hero-body/.scrollcue markup and CSS) — the static photo
+        background becomes a full-viewport HTML5 <video>, and the text block
+        is re-centered to the 4 elements confirmed for this prototype
+        (eyebrow / 神戸 / HYOGO, JAPAN / description) instead of production's
+        5-line eyebrow+hero-jp+hero-en+hero-sub+hero-lead stack.
+     2. The App Bar (template-parts/jtnp/appbar.php, untouched markup) —
+        transparent while over the HERO, the theme's own existing dark
+        gradient (copied 1:1 from .jtnp-area-page .appbar below) once
+        scrolled past it. Same technique already used by ../index.html's own
+        assets/css/hero-override.css for the HOME YouTube HERO.
+
+   No other Global Component's selectors are touched here, and this file is
+   loaded ONLY by kobe/index.html — ../index.html (HOME) never references it.
+   =========================================================================== */
+
+/* ------------------------------------------------------------- App Bar --- */
+.jtnp-area-page .jtnp-appbar-blk {
+  margin-bottom: calc(-1 * var(--jtnp-appbar-h, 62px));
+}
+
+.jtnp-area-page .appbar {
+  background: transparent;
+  border-bottom-color: transparent;
+  transition: background .25s ease, border-color .25s ease;
+}
+
+.jtnp-area-page .appbar[data-jtnp-scrolled] {
+  background: linear-gradient(180deg, rgba(3, 6, 14, .96), rgba(3, 6, 14, .86));
+  border-bottom-color: var(--jtnp-divider);
+}
+
+#jtnp-landmark,
+#jtnp-news,
+#jtnp-collection,
+#jtnp-explore,
+#jtnp-member {
+  scroll-margin-top: 64px;
+}
+
+@media (min-width: 576px) {
+  #jtnp-landmark,
+  #jtnp-news,
+  #jtnp-collection,
+  #jtnp-explore,
+  #jtnp-member {
+    scroll-margin-top: 72px;
+  }
+}
+
+@media (min-width: 992px) {
+  #jtnp-landmark,
+  #jtnp-news,
+  #jtnp-collection,
+  #jtnp-explore,
+  #jtnp-member {
+    scroll-margin-top: 80px;
+  }
+}
+
+/* ------------------------------------------------------------------ HERO */
+/* Full-viewport HERO frame for the video, replacing the Area Hero's own
+   60vh/min-height:420px cap (assets/css/jtnp-area.css .hero) — brief item 10
+   ("full viewport HERO"). Everything else on .hero (background token, the
+   .hero::after dark readability gradient, .hero-frame's gold/teal double
+   border) is production's own, untouched. */
+.jtnp-kobe-hero-blk .hero {
+  height: 100vh;
+  height: 100svh;
+  min-height: 480px;
+}
+
+/* ---- HTML5 video layer, cover-cropped, centered ------------------------- */
+.hero-video-el {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  background: var(--jtnp-surf2);
+}
+
+/* Fallback / poster layer — the theme's own "missing image" surface token
+   (same gradient .jtnp-img-missing / national Hero's own placeholder use),
+   shown until the video is confirmed playing and again any time playback
+   fails, so the HERO frame, its text and the App Bar above it never break. */
+.hero-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(130% 150% at 18% -10%, rgba(223, 180, 60, .13), transparent 58%),
+    linear-gradient(158deg, #0C1220 0%, #070B14 55%, var(--jtnp-bg) 100%);
+}
+
+/* ---- hero text: the 4 confirmed elements, centered ----------------------- */
+.jtnp-kobe-hero-blk .hero-body {
+  position: absolute;
+  inset: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 22px;
+  gap: 4px;
+}
+
+/* Eyebrow — production's own .eyebrow.gold, unmodified; only re-centered
+   here since .hero-body's own text-align now applies to every child. */
+
+/* Main title — 神戸. Same role and the same three-tier scale as the site's
+   single largest headline, ../index.html's HOME Hero .hs-jp (0.7.1 Display
+   XL, assets/css/jtnp-national.css: 48/62/86px, --jtnp-fjp Japanese serif,
+   --jtnp-tx) — brief's own "HOME HERO「日本」に近いvisual hierarchy"
+   instruction, reused verbatim rather than re-invented. */
+.khero-title {
+  font-family: var(--jtnp-fjp);
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  line-height: 1.05;
+  margin: 6px 0 0;
+  color: var(--jtnp-tx);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, .5);
+}
+
+@media (min-width: 576px) {
+  .khero-title {
+    font-size: 62px;
+  }
+}
+
+@media (min-width: 992px) {
+  .khero-title {
+    font-size: 86px;
+  }
+}
+
+/* Location — HYOGO, JAPAN. Same role/scale as HOME Hero's .hs-en (light/
+   white tone, uppercase, wide letter-spacing, smaller than the main title). */
+.khero-region {
+  font-family: var(--jtnp-fdisp);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  margin: 2px 0 0;
+  color: var(--jtnp-tx2);
+}
+
+@media (min-width: 576px) {
+  .khero-region {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 992px) {
+  .khero-region {
+    font-size: 20px;
+  }
+}
+
+/* Description — same role/scale as HOME Hero's .hs-lead. */
+.khero-lead {
+  margin: 14px 0 0;
+  color: var(--jtnp-tx2);
+  font-size: 13.5px;
+  line-height: 1.72;
+  max-width: 34ch;
+}
+
+@media (min-width: 992px) {
+  .khero-lead {
+    font-size: 15px;
+    max-width: 46ch;
+  }
+}
+
+/* Scrollcue kept from production's own Area Hero; only re-anchored since the
+   frame is now full-viewport instead of 60vh. */
+.jtnp-kobe-hero-blk .scrollcue {
+  bottom: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-video-el {
+    display: none;
+  }
+
+  .hero-fallback {
+    z-index: 0;
+  }
+}

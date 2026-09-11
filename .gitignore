@@ -1,0 +1,5 @@
+# Original, uncompressed 4K source footage — never committed.
+# Only the compressed Web HERO output (assets/video/kobe-hero.mp4) is tracked.
+assets/video/source/
+
+.DS_Store
