@@ -14,6 +14,18 @@
    No other Global Component's selectors are touched here.
    =========================================================================== */
 
+/* ------------------------------------------------------------ Body reset - */
+/* Standalone-prototype-only fix: this page loads without Lightning's own
+   base stylesheet, so nothing zeroes the browser's default `body { margin:
+   8px }` UA rule — leaving a visible 8px inset on all four edges of the
+   HERO/App Bar. assets/css/jtnp-area.css is the theme's own unmodified file
+   (kept byte-identical to the Source of Truth ZIP) and is intentionally not
+   touched; this override applies the reset only in this prototype. Padding
+   is already 0 here (verified via computed style), so only margin is reset. */
+body.jtnp-area-page {
+  margin: 0;
+}
+
 /* ------------------------------------------------------------- App Bar --- */
 /* Production's .jtnp-appbar-blk is already `position: sticky; top:0;
    z-index:40` (assets/css/jtnp-area.css) — kept completely unchanged here,
