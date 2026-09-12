@@ -88,7 +88,10 @@
   display: none;
 }
 
-/* ---- HTML5 video layer, cover-cropped, centered ------------------------- */
+/* ---- HTML5 video layer, cover-cropped, centered -------------------------
+   Kept for the future WordPress/MP4 implementation; the <video> markup
+   itself is currently commented out in kobe/index.html (see brief item 4 —
+   asset not deleted, just not invoked by the HERO right now). */
 .hero-video-el {
   position: absolute;
   inset: 0;
@@ -103,14 +106,60 @@
 /* Fallback / poster layer — the theme's own "missing image" surface token
    (same gradient .jtnp-img-missing / national Hero's own placeholder use),
    shown until the video is confirmed playing and again any time playback
-   fails, so the HERO frame, its text and the App Bar above it never break. */
+   fails, so the HERO frame, its text and the App Bar above it never break.
+   z-index raised from -1 to 0 (was correct for the always-visible <video>
+   it used to sit behind) to support the same fade-behind-the-iframe
+   technique as the HOME HERO's .hero-fallback (hero-override.css) now that
+   the background layer above it toggles opacity via [data-video-ready]
+   instead of a plain display:none. */
 .hero-fallback {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   background:
     radial-gradient(130% 150% at 18% -10%, rgba(223, 180, 60, .13), transparent 58%),
     linear-gradient(158deg, #0C1220 0%, #070B14 55%, var(--jtnp-bg) 100%);
+  transition: opacity .5s ease;
+}
+
+.jtnp-kobe-hero-blk .hero[data-video-ready] .hero-fallback {
+  opacity: 0;
+}
+
+/* ---- 2. TEMPORARY YouTube video layer, cover-cropped, centered, no
+   pointer events — same technique as the HOME HERO's own .hero-video /
+   #jtnp-hero-yt (hero-override.css), reimplemented here under KOBE's own
+   selector/id so neither HERO's CSS or JS shares state with the other. */
+.jtnp-kobe-hero-blk .hero-video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .6s ease;
+}
+
+.jtnp-kobe-hero-blk .hero[data-video-ready] .hero-video {
+  opacity: 1;
+}
+
+#jtnp-kobe-hero-yt {
+  position: absolute;
+  inset: 0;
+}
+
+#jtnp-kobe-hero-yt iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 177.78vh;
+  height: 56.25vw;
+  min-width: 100vw;
+  min-height: 100svh;
+  transform: translate(-50%, -50%);
+  border: 0;
+  pointer-events: none;
 }
 
 /* ---- hero text: the 4 confirmed elements, centered ----------------------- */
@@ -211,7 +260,12 @@
     display: none;
   }
 
+  .jtnp-kobe-hero-blk .hero-video {
+    display: none;
+  }
+
   .hero-fallback {
     z-index: 0;
+    opacity: 1;
   }
 }

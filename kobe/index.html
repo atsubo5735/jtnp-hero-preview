@@ -141,12 +141,25 @@
        play/pause + the App-Bar-over-HERO scroll state.
        ===================================================================== -->
   <section class="blk jtnp-hero-blk jtnp-kobe-hero-blk">
-    <div class="hero">
-      <div class="hero-fallback" aria-hidden="true"></div>
+    <div class="hero" data-hero>
+      <div class="hero-fallback" data-hero-fallback aria-hidden="true"></div>
 
+      <!-- TEMPORARY presentation-meeting swap: YouTube IFrame Player API
+           background (assets/js/kobe-hero.js), same fade-in-after-PLAYING
+           pattern as the HOME HERO's own assets/js/hero.js (independent
+           script/instance — no shared DOM id, no cross-file dependency,
+           no shared video id). The production MP4 background below is kept
+           in the DOM (commented out, not deleted) for the future WordPress/
+           MP4 implementation and is simply not invoked while this YouTube
+           prototype is active. -->
+      <div class="hero-video" data-hero-video aria-hidden="true">
+        <div id="jtnp-kobe-hero-yt" data-hero-yt-mount></div>
+      </div>
+
+      <!--
       <video
         class="hero-video-el"
-        data-hero-video
+        data-hero-video-mp4
         autoplay
         muted
         loop
@@ -156,6 +169,7 @@
       >
         <source src="../assets/video/kobe-hero.mp4" type="video/mp4">
       </video>
+      -->
 
       <div class="hero-frame" aria-hidden="true"></div>
 

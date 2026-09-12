@@ -33,7 +33,7 @@
 ( function () {
 	'use strict';
 
-	var YT_VIDEO_ID = 'wGupxN7yHWI';
+	var YT_VIDEO_ID = 'c7NUEV2ot5E'; // temporary presentation-meeting swap; was wGupxN7yHWI
 	var STABLE_PLAYING_MS = 500; // brief item 7: iframe only shown after PLAYING holds this long
 	var AUTOPLAY_WATCHDOG_MS = 1800; // diagnostic-only window to infer "autoplay blocked"
 	var PAUSE_RETRY_LIMIT = 2; // background-loop nudge cap — never an infinite retry loop
