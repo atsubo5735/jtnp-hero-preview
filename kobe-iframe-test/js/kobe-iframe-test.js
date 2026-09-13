@@ -6,62 +6,70 @@
  * reused unmodified by kobe-iframe-test/index.html for the App Bar / HERO).
  *
  * Responsibilities:
- *   1. Bottom Sheet open/close (collapsed thin bar <-> expanded 6-menu).
- *      The handle bar itself is the only open/close control (relabeled
- *      開く ▲ / 閉じる ▼), staying pinned to the true viewport bottom in
- *      both states; [data-open] on .kit-menu drives all animation in CSS.
- *   2. 6-menu selection -> swap the #kit-frame iframe's src only; the KOBE
- *      page itself is never replaced/navigated.
- *   3. After selecting, smooth-scroll the iframe section into view (skipped
- *      if it is already sufficiently on screen, so this never fights the
- *      user with an unnecessary jump) and auto-close the Bottom Sheet on
- *      narrow (smartphone-width) viewports so it does not keep covering the
- *      newly-loaded external site.
+ *   1. HERO-aware fixed 6-menu visibility. No open/close control: an
+ *      IntersectionObserver on the HERO section toggles [data-kit-menu-visible]
+ *      on the menu — hidden while the HERO is on screen, shown (fixed to the
+ *      bottom of the viewport) once the HERO has been scrolled past, hidden
+ *      again if the user scrolls back up into the HERO.
+ *   2. 6-menu selection -> swap the #kit-frame iframe's src, set the active
+ *      button, and set the IFRAME SECTION's background color to match the
+ *      selected category, all at once. The KOBE page itself is never
+ *      replaced/navigated.
+ *   3. Keep --kit-bar-h (used by the iframe section / footer bottom padding
+ *      so the fixed menu never covers them) in sync with the menu's real
+ *      rendered height.
  */
 ( function () {
 	'use strict';
 
 	var menu = document.querySelector( '[data-kit-menu]' );
-	var toggleBtn = document.querySelector( '[data-kit-menu-toggle]' );
-	var toggleWord = document.querySelector( '[data-kit-menu-toggle-word]' );
 	var items = Array.prototype.slice.call( document.querySelectorAll( '[data-kit-item]' ) );
 	var frame = document.getElementById( 'kit-frame' );
 	var iframeSection = document.getElementById( 'kit-iframe' );
+	var hero = document.getElementById( 'kit-hero' );
 
-	if ( ! menu || ! toggleBtn || ! frame ) {
+	if ( ! menu || ! frame ) {
 		return;
 	}
 
-	var SMARTPHONE_MAX_WIDTH = 640;
-
-	function isOpen() {
-		return menu.hasAttribute( 'data-open' );
+	/* ------------------------------------------------------- bar height --- */
+	function syncBarHeight() {
+		document.documentElement.style.setProperty( '--kit-bar-h', menu.offsetHeight + 'px' );
 	}
 
-	function setOpen( open ) {
-		if ( open ) {
-			menu.setAttribute( 'data-open', '' );
+	syncBarHeight();
+	window.addEventListener( 'resize', syncBarHeight );
+	if ( window.ResizeObserver ) {
+		new ResizeObserver( syncBarHeight ).observe( menu );
+	}
+
+	/* ------------------------------------------------- HERO visibility --- */
+	function setMenuVisible( visible ) {
+		if ( visible ) {
+			menu.setAttribute( 'data-kit-menu-visible', '' );
 		} else {
-			menu.removeAttribute( 'data-open' );
-		}
-		toggleBtn.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
-		if ( toggleWord ) {
-			toggleWord.textContent = open ? '閉じる' : '開く';
+			menu.removeAttribute( 'data-kit-menu-visible' );
 		}
 	}
 
-	toggleBtn.addEventListener( 'click', function () {
-		setOpen( ! isOpen() );
-	} );
+	if ( hero && 'IntersectionObserver' in window ) {
+		var heroObserver = new IntersectionObserver( function ( entries ) {
+			entries.forEach( function ( entry ) {
+				// Show the menu once the HERO has been scrolled past (no longer
+				// intersecting AND above the viewport, i.e. scrolled up out of
+				// view — not merely "not yet reached" below the viewport).
+				var scrolledPast = ! entry.isIntersecting && entry.boundingClientRect.top < 0;
+				setMenuVisible( scrolledPast );
+			} );
+		}, { threshold: 0 } );
 
-	// Escape closes, same pattern as the App Bar's mobile nav.
-	document.addEventListener( 'keydown', function ( e ) {
-		if ( 'Escape' === e.key && isOpen() ) {
-			setOpen( false );
-			toggleBtn.focus();
-		}
-	} );
+		heroObserver.observe( hero );
+	} else {
+		// No IntersectionObserver support: fail open so the menu is usable.
+		setMenuVisible( true );
+	}
 
+	/* --------------------------------------------------------- selection --- */
 	function isSectionSufficientlyVisible( el ) {
 		var rect = el.getBoundingClientRect();
 		var vh = window.innerHeight || document.documentElement.clientHeight;
@@ -72,6 +80,7 @@
 
 	function selectItem( btn ) {
 		var src = btn.getAttribute( 'data-kit-src' );
+		var color = btn.getAttribute( 'data-kit-color' );
 		if ( ! src ) {
 			return;
 		}
@@ -80,24 +89,17 @@
 			frame.setAttribute( 'src', src );
 		}
 
+		if ( iframeSection && color ) {
+			iframeSection.setAttribute( 'data-kit-color', color );
+		}
+
 		items.forEach( function ( otherBtn ) {
 			var isCurrent = otherBtn === btn;
 			otherBtn.classList.toggle( 'is-current', isCurrent );
 			otherBtn.setAttribute( 'aria-pressed', isCurrent ? 'true' : 'false' );
 		} );
 
-		var isSmartphone = window.matchMedia && window.matchMedia( '(max-width: ' + SMARTPHONE_MAX_WIDTH + 'px)' ).matches;
-
-		if ( isSmartphone ) {
-			// Close first so the sheet does not keep covering the freshly
-			// loaded external site, then scroll once it has collapsed.
-			setOpen( false );
-			window.setTimeout( function () {
-				if ( iframeSection && ! isSectionSufficientlyVisible( iframeSection ) ) {
-					iframeSection.scrollIntoView( { behavior: 'smooth', block: 'start' } );
-				}
-			}, 220 );
-		} else if ( iframeSection && ! isSectionSufficientlyVisible( iframeSection ) ) {
+		if ( iframeSection && ! isSectionSufficientlyVisible( iframeSection ) ) {
 			iframeSection.scrollIntoView( { behavior: 'smooth', block: 'start' } );
 		}
 	}

@@ -4,23 +4,48 @@
    Loaded after ../assets/css/jtnp-area.css and ../assets/css/kobe-hero-
    override.css, both reused unmodified for the App Bar / HERO / Footer.
    This file adds ONLY:
-     1. The IFRAME SECTION (this page's only real content).
-     2. The bottom fixed collapsible 6-menu ("Bottom Sheet").
-   Uses the theme's own --jtnp-* design tokens (defined in jtnp-area.css)
-   rather than inventing a new palette, per this task's "reuse KOBE design"
-   instruction.
+     1. The IFRAME SECTION (this page's only real content) — its background
+        color tracks whichever category is currently selected.
+     2. The bottom FIXED 6-menu — no open/close control. Hidden while the
+        HERO is on screen; shown, fixed to the bottom of the viewport, once
+        the HERO has been scrolled past (see js/kobe-iframe-test.js).
+   Uses the theme's own --jtnp-* design tokens (defined in jtnp-area.css) for
+   type/spacing/radius, plus a small set of category colors below (visual
+   reference: 6-color menu screenshot supplied with this task's brief).
    =========================================================================== */
+
+/* --------------------------------------------------------- CATEGORY COLORS --- */
+:root {
+  --kit-bar-h: 84px; /* recalculated in JS from the menu's real rendered height */
+
+  --kit-color-see:    #1C7FB8; /* blue   */
+  --kit-color-move:   #3F8F35; /* green  */
+  --kit-color-season: #D6285F; /* pink   */
+  --kit-color-stay:   #E85A1B; /* orange */
+  --kit-color-food:   #5E3AA8; /* purple */
+  --kit-color-shop:   #D9A404; /* gold / yellow */
+}
 
 /* ------------------------------------------------------------- IFRAME --- */
 .kit-iframe-blk {
   background: var(--jtnp-bg2);
-  padding: 28px 16px calc(28px + var(--kit-bar-h, 52px) + env(safe-area-inset-bottom, 0px));
+  padding: 28px 16px calc(28px + var(--kit-bar-h, 84px) + env(safe-area-inset-bottom, 0px));
+  transition: background-color .3s ease;
 }
+
+/* The selected category's color drives the SECTION background (not the
+   external site inside the iframe, which is left completely untouched). */
+.kit-iframe-blk[data-kit-color="see"]    { background-color: var(--kit-color-see); }
+.kit-iframe-blk[data-kit-color="move"]   { background-color: var(--kit-color-move); }
+.kit-iframe-blk[data-kit-color="season"] { background-color: var(--kit-color-season); }
+.kit-iframe-blk[data-kit-color="stay"]   { background-color: var(--kit-color-stay); }
+.kit-iframe-blk[data-kit-color="food"]   { background-color: var(--kit-color-food); }
+.kit-iframe-blk[data-kit-color="shop"]   { background-color: var(--kit-color-shop); }
 
 .kit-iframe-wrap {
   max-width: 1280px;
   margin: 0 auto;
-  border: 1px solid var(--jtnp-divider);
+  border: 1px solid rgba(255, 255, 255, .28);
   border-radius: var(--jtnp-r);
   overflow: hidden;
   background: var(--jtnp-surf);
@@ -40,7 +65,8 @@
   max-width: 1280px;
   margin: 12px auto 0;
   padding: 0 2px;
-  color: var(--jtnp-tx3);
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .45);
   font-family: var(--jtnp-fb);
   font-size: 11.5px;
   line-height: 1.6;
@@ -48,7 +74,7 @@
 
 @media (max-width: 991px) {
   .kit-iframe-blk {
-    padding: 22px 12px calc(22px + var(--kit-bar-h, 52px) + env(safe-area-inset-bottom, 0px));
+    padding: 22px 12px calc(22px + var(--kit-bar-h, 84px) + env(safe-area-inset-bottom, 0px));
   }
   .kit-frame {
     height: 75vh;
@@ -58,7 +84,7 @@
 
 @media (max-width: 576px) {
   .kit-iframe-blk {
-    padding: 16px 10px calc(16px + var(--kit-bar-h, 52px) + env(safe-area-inset-bottom, 0px));
+    padding: 16px 10px calc(16px + var(--kit-bar-h, 84px) + env(safe-area-inset-bottom, 0px));
   }
   .kit-frame {
     height: calc(100vh - 130px);
@@ -69,81 +95,32 @@
 
 /* Footer must never sit under the fixed bottom bar. */
 .jtnp-footer-blk {
-  padding-bottom: calc(var(--kit-bar-h, 52px) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--kit-bar-h, 84px) + env(safe-area-inset-bottom, 0px));
 }
 
-/* ---------------------------------------------------- BOTTOM SHEET MENU --- */
-:root {
-  --kit-bar-h: 52px;
-}
-
+/* --------------------------------------------------------- FIXED 6-MENU --- */
+/* No open/close control. Hidden by default (translateY + opacity, matching
+   the HERO-visible state); JS adds [data-kit-menu-visible] once the HERO
+   has been scrolled past, and removes it again if the user scrolls back up
+   to the HERO. */
 .kit-menu {
-  font-family: var(--jtnp-fb);
-}
-
-/* The handle bar stays pinned to the true bottom of the viewport at all
-   times (collapsed AND expanded) — it IS the "開く ▲ / 閉じる ▼" control,
-   not a second element stacked on top of a separate close button. */
-.kit-menu-bar {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 9001;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: var(--kit-bar-h);
-  padding: 0 16px calc(env(safe-area-inset-bottom, 0px) * .4);
-  border: 0;
-  border-top: 1px solid var(--jtnp-divider);
-  background: linear-gradient(180deg, rgba(7, 10, 20, .92), rgba(3, 6, 14, .98));
-  color: var(--jtnp-tx);
   font-family: var(--jtnp-fdisp);
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.kit-menu-bar:hover {
-  color: var(--jtnp-gold-hi);
-}
-
-.kit-caret {
-  display: inline-block;
-  margin-left: 6px;
-  font-style: normal;
-  transition: transform .25s ease;
-}
-
-.kit-menu[data-open] .kit-menu-bar .kit-caret {
-  transform: rotate(180deg);
-}
-
-/* Sheet panel: sits directly above the fixed handle bar, sliding up from
-   behind it. Collapsed by default (translateY + opacity, not display:none,
-   so the slide itself is what animates). */
-.kit-menu-panel {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: var(--kit-bar-h);
-  z-index: 9000;
-  background: rgba(5, 8, 16, .98);
+  background: linear-gradient(180deg, rgba(7, 10, 20, .92), rgba(3, 6, 14, .98));
   border-top: 1px solid var(--jtnp-divider);
-  backdrop-filter: blur(10px);
-  transform: translateY(12px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  transform: translateY(100%);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transition: transform .26s ease, opacity .22s ease, visibility 0s linear .26s;
 }
 
-.kit-menu[data-open] .kit-menu-panel {
+.kit-menu[data-kit-menu-visible] {
   transform: translateY(0);
   opacity: 1;
   visibility: visible;
@@ -151,16 +128,11 @@
   transition: transform .26s ease, opacity .22s ease;
 }
 
-.kit-menu-panel-inner {
-  overflow-y: auto;
-  max-height: 38vh;
-}
-
 .kit-menu-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  padding: 18px 16px 8px;
+  gap: 8px;
+  padding: 10px 12px;
   max-width: 1100px;
   margin: 0 auto;
 }
@@ -170,49 +142,63 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 14px 6px;
-  border: 1px solid var(--jtnp-divider);
+  gap: 4px;
+  padding: 10px 6px;
+  border: 0;
   border-radius: 12px;
-  background: var(--jtnp-surf);
-  color: var(--jtnp-tx2);
+  background: #333;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
   font-family: var(--jtnp-fdisp);
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
   cursor: pointer;
-  transition: border-color .2s ease, color .2s ease, background .2s ease;
+  transition: filter .2s ease, box-shadow .2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
-.kit-menu-item:hover {
-  border-color: var(--jtnp-gold-border);
-  color: var(--jtnp-gold);
+.kit-menu-item[data-kit-color="see"]    { background: var(--kit-color-see); }
+.kit-menu-item[data-kit-color="move"]   { background: var(--kit-color-move); }
+.kit-menu-item[data-kit-color="season"] { background: var(--kit-color-season); }
+.kit-menu-item[data-kit-color="stay"]   { background: var(--kit-color-stay); }
+.kit-menu-item[data-kit-color="food"]   { background: var(--kit-color-food); }
+.kit-menu-item[data-kit-color="shop"]   {
+  background: var(--kit-color-shop);
+  /* Gold reads far better with dark text than white — kept for contrast. */
+  color: #2B2100;
+  text-shadow: none;
 }
 
+.kit-menu-item:hover {
+  filter: brightness(1.08);
+}
+
+/* Active state: a white ring, no size/layout change. */
 .kit-menu-item.is-current {
-  border-color: var(--jtnp-gold-border);
-  background: rgba(223, 180, 60, .1);
-  color: var(--jtnp-gold-hi);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .92);
+}
+
+.kit-menu-item[data-kit-color="shop"].is-current {
+  box-shadow: inset 0 0 0 2px rgba(43, 33, 0, .75);
 }
 
 .kit-menu-icon {
-  font-size: 22px;
+  font-size: 19px;
   line-height: 1;
 }
 
-/* PC / Tablet: room for a single row of 6, so keep the horizontal layout.
-   Smartphone: 3 columns x 2 rows reads far better at 375-430px than a
-   cramped 6-across row. */
+/* PC / Tablet: single row of 6. Smartphone: 3 columns x 2 rows, matching
+   the reference screenshot and keeping each button comfortably tappable. */
 @media (max-width: 640px) {
   .kit-menu-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px 8px;
-    padding: 16px 14px 6px;
+    gap: 8px;
+    padding: 10px 12px;
   }
 
   .kit-menu-item {
-    padding: 12px 4px;
+    padding: 10px 4px;
   }
 
   .kit-menu-icon {
@@ -221,8 +207,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kit-menu-panel,
-  .kit-caret {
+  .kit-menu,
+  .kit-iframe-blk {
     transition: none;
   }
 }

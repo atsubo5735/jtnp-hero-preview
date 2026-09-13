@@ -28,9 +28,12 @@
     - FOOTER markup + ../assets/css/jtnp-area.css
 
   New for this page only (does not touch any existing file):
-    - The IFRAME SECTION (this page's only real content).
-    - The bottom fixed collapsible 6-menu ("Bottom Sheet"): css/kobe-iframe-test.css
-      + js/kobe-iframe-test.js.
+    - The IFRAME SECTION (this page's only real content). Its background
+      color is linked to whichever category is selected.
+    - The bottom FIXED (always-on, no open/close) 6-menu: css/kobe-iframe-test.css
+      + js/kobe-iframe-test.js. Hidden while the HERO is on screen; shown,
+      fixed to the bottom of the viewport, once the HERO has been scrolled
+      past (IntersectionObserver on the HERO section drives this).
 
   All other existing KOBE content sections (Landmark, Official Guide, Area
   News, Influencer, Ranking, Official SNS, Spoon Collection, Explore Japan,
@@ -104,7 +107,7 @@
        JS). Only the scrollcue target changes (-> the iframe section below,
        since this page has no Landmark section).
        ===================================================================== -->
-  <section class="blk jtnp-hero-blk jtnp-kobe-hero-blk">
+  <section class="blk jtnp-hero-blk jtnp-kobe-hero-blk" id="kit-hero">
     <div class="hero" data-hero>
       <div class="hero-fallback" data-hero-fallback aria-hidden="true"></div>
 
@@ -133,7 +136,7 @@
        are shown as-is, unmodified, inside this iframe; internal navigation
        inside the external site is left to that site's own links.
        ===================================================================== -->
-  <section class="blk kit-iframe-blk" id="kit-iframe">
+  <section class="blk kit-iframe-blk" id="kit-iframe" data-kit-color="see">
     <div class="kit-iframe-wrap">
       <iframe
         id="kit-frame"
@@ -178,52 +181,39 @@
 </div><!-- [ /.jtnp-area ] -->
 
 <!-- =========================================================================
-     BOTTOM FIXED COLLAPSIBLE 6-MENU ("Bottom Sheet"). Always available,
-     including while HERO is on screen. Collapsed by default (thin bar
-     only); tapping it slides the 6-menu grid up from the bottom.
+     BOTTOM FIXED 6-MENU. No open/close control — hidden entirely while the
+     HERO is on screen (JS toggles [data-kit-menu-visible] once the HERO has
+     been scrolled past), then stays fixed to the bottom of the viewport for
+     as long as the user remains below the HERO.
      ========================================================================= -->
-<div class="kit-menu" data-kit-menu>
-  <button
-    type="button"
-    class="kit-menu-bar"
-    data-kit-menu-toggle
-    aria-expanded="false"
-    aria-controls="kit-menu-panel"
-  >
-    <span data-kit-menu-toggle-word>開く</span> <i class="kit-caret" aria-hidden="true">▲</i>
-  </button>
-
-  <div class="kit-menu-panel" id="kit-menu-panel" data-kit-menu-panel>
-    <div class="kit-menu-panel-inner">
-      <div class="kit-menu-grid" role="group" aria-label="カテゴリメニュー">
-        <button type="button" class="kit-menu-item is-current" data-kit-item data-kit-src="https://www.hyogo-tourism.jp/world/" data-kit-label="SEE" aria-pressed="true">
-          <span class="kit-menu-icon" aria-hidden="true">🗺️</span>
-          <span class="kit-menu-text">SEE</span>
-        </button>
-        <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://www.hyogo-tourism.jp/world/access/" data-kit-label="MOVE" aria-pressed="false">
-          <span class="kit-menu-icon" aria-hidden="true">🚃</span>
-          <span class="kit-menu-text">MOVE</span>
-        </button>
-        <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://www.hyogo-tourism.jp/world/feature/" data-kit-label="SEASON" aria-pressed="false">
-          <span class="kit-menu-icon" aria-hidden="true">🌸</span>
-          <span class="kit-menu-text">SEASON</span>
-        </button>
-        <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://www.j-hotel.or.jp/en/?wonv=en" data-kit-label="STAY" aria-pressed="false">
-          <span class="kit-menu-icon" aria-hidden="true">🛏️</span>
-          <span class="kit-menu-text">STAY</span>
-        </button>
-        <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://savorjapan.com/" data-kit-label="FOOD" aria-pressed="false">
-          <span class="kit-menu-icon" aria-hidden="true">🍜</span>
-          <span class="kit-menu-text">FOOD</span>
-        </button>
-        <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://kansaionepass.com/en/" data-kit-label="SHOP" aria-pressed="false">
-          <span class="kit-menu-icon" aria-hidden="true">🛍️</span>
-          <span class="kit-menu-text">SHOP</span>
-        </button>
-      </div>
-    </div>
+<nav class="kit-menu" data-kit-menu aria-label="カテゴリメニュー">
+  <div class="kit-menu-grid">
+    <button type="button" class="kit-menu-item is-current" data-kit-item data-kit-src="https://www.hyogo-tourism.jp/world/" data-kit-label="SEE" data-kit-color="see" aria-pressed="true">
+      <span class="kit-menu-icon" aria-hidden="true">🗺️</span>
+      <span class="kit-menu-text">SEE</span>
+    </button>
+    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://www.hyogo-tourism.jp/world/access/" data-kit-label="MOVE" data-kit-color="move" aria-pressed="false">
+      <span class="kit-menu-icon" aria-hidden="true">🚃</span>
+      <span class="kit-menu-text">MOVE</span>
+    </button>
+    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://www.hyogo-tourism.jp/world/feature/" data-kit-label="SEASON" data-kit-color="season" aria-pressed="false">
+      <span class="kit-menu-icon" aria-hidden="true">🌸</span>
+      <span class="kit-menu-text">SEASON</span>
+    </button>
+    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://www.j-hotel.or.jp/en/?wonv=en" data-kit-label="STAY" data-kit-color="stay" aria-pressed="false">
+      <span class="kit-menu-icon" aria-hidden="true">🛏️</span>
+      <span class="kit-menu-text">STAY</span>
+    </button>
+    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://savorjapan.com/" data-kit-label="FOOD" data-kit-color="food" aria-pressed="false">
+      <span class="kit-menu-icon" aria-hidden="true">🍜</span>
+      <span class="kit-menu-text">FOOD</span>
+    </button>
+    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://kansaionepass.com/en/" data-kit-label="SHOP" data-kit-color="shop" aria-pressed="false">
+      <span class="kit-menu-icon" aria-hidden="true">🛍️</span>
+      <span class="kit-menu-text">SHOP</span>
+    </button>
   </div>
-</div>
+</nav>
 
 <script src="../assets/js/jtnp-appbar.js"></script>
 <script src="../assets/js/kobe-hero.js"></script>
