@@ -6,18 +6,16 @@
  * reused unmodified by kobe-iframe-test/index.html for the App Bar / HERO).
  *
  * Responsibilities:
- *   1. HERO-aware fixed 6-menu visibility. No open/close control: an
- *      IntersectionObserver on the HERO section toggles [data-kit-menu-visible]
- *      on the menu — hidden while the HERO is on screen, shown (fixed to the
- *      bottom of the viewport) once the HERO has been scrolled past, hidden
- *      again if the user scrolls back up into the HERO.
- *   2. 6-menu selection -> swap the #kit-frame iframe's src, set the active
+ *   1. 6-menu selection -> swap the #kit-frame iframe's src, set the active
  *      button, and set the IFRAME SECTION's background color to match the
  *      selected category, all at once. The KOBE page itself is never
  *      replaced/navigated.
- *   3. Keep --kit-bar-h (used by the iframe section / footer bottom padding
+ *   2. Keep --kit-bar-h (used by the iframe section / footer bottom padding
  *      so the fixed menu never covers them) in sync with the menu's real
  *      rendered height.
+ *
+ * The 6-menu itself is always visible, fixed to the bottom of the viewport,
+ * for the whole page (HERO included) — there is no HERO-based show/hide.
  */
 ( function () {
 	'use strict';
@@ -26,7 +24,6 @@
 	var items = Array.prototype.slice.call( document.querySelectorAll( '[data-kit-item]' ) );
 	var frame = document.getElementById( 'kit-frame' );
 	var iframeSection = document.getElementById( 'kit-iframe' );
-	var hero = document.getElementById( 'kit-hero' );
 
 	if ( ! menu || ! frame ) {
 		return;
@@ -41,32 +38,6 @@
 	window.addEventListener( 'resize', syncBarHeight );
 	if ( window.ResizeObserver ) {
 		new ResizeObserver( syncBarHeight ).observe( menu );
-	}
-
-	/* ------------------------------------------------- HERO visibility --- */
-	function setMenuVisible( visible ) {
-		if ( visible ) {
-			menu.setAttribute( 'data-kit-menu-visible', '' );
-		} else {
-			menu.removeAttribute( 'data-kit-menu-visible' );
-		}
-	}
-
-	if ( hero && 'IntersectionObserver' in window ) {
-		var heroObserver = new IntersectionObserver( function ( entries ) {
-			entries.forEach( function ( entry ) {
-				// Show the menu once the HERO has been scrolled past (no longer
-				// intersecting AND above the viewport, i.e. scrolled up out of
-				// view — not merely "not yet reached" below the viewport).
-				var scrolledPast = ! entry.isIntersecting && entry.boundingClientRect.top < 0;
-				setMenuVisible( scrolledPast );
-			} );
-		}, { threshold: 0 } );
-
-		heroObserver.observe( hero );
-	} else {
-		// No IntersectionObserver support: fail open so the menu is usable.
-		setMenuVisible( true );
 	}
 
 	/* --------------------------------------------------------- selection --- */

@@ -6,9 +6,9 @@
    This file adds ONLY:
      1. The IFRAME SECTION (this page's only real content) — its background
         color tracks whichever category is currently selected.
-     2. The bottom FIXED 6-menu — no open/close control. Hidden while the
-        HERO is on screen; shown, fixed to the bottom of the viewport, once
-        the HERO has been scrolled past (see js/kobe-iframe-test.js).
+     2. The bottom FIXED 6-menu — no open/close control, no HERO-based show/
+        hide. Always fixed to the bottom of the viewport, from page load
+        through HERO, iframe section and footer (see js/kobe-iframe-test.js).
    Uses the theme's own --jtnp-* design tokens (defined in jtnp-area.css) for
    type/spacing/radius, plus a small set of category colors below (visual
    reference: 6-color menu screenshot supplied with this task's brief).
@@ -99,10 +99,8 @@
 }
 
 /* --------------------------------------------------------- FIXED 6-MENU --- */
-/* No open/close control. Hidden by default (translateY + opacity, matching
-   the HERO-visible state); JS adds [data-kit-menu-visible] once the HERO
-   has been scrolled past, and removes it again if the user scrolls back up
-   to the HERO. */
+/* No open/close control. Always fixed to the bottom of the viewport, for the
+   entire page (HERO included) — no HERO-based show/hide. */
 .kit-menu {
   position: fixed;
   left: 0;
@@ -110,22 +108,9 @@
   bottom: 0;
   z-index: 9001;
   font-family: var(--jtnp-fdisp);
-  background: linear-gradient(180deg, rgba(7, 10, 20, .92), rgba(3, 6, 14, .98));
+  background: #FFFFFF;
   border-top: 1px solid var(--jtnp-divider);
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  transform: translateY(100%);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: transform .26s ease, opacity .22s ease, visibility 0s linear .26s;
-}
-
-.kit-menu[data-kit-menu-visible] {
-  transform: translateY(0);
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition: transform .26s ease, opacity .22s ease;
 }
 
 .kit-menu-grid {
@@ -207,7 +192,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kit-menu,
   .kit-iframe-blk {
     transition: none;
   }

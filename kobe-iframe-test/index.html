@@ -31,9 +31,8 @@
     - The IFRAME SECTION (this page's only real content). Its background
       color is linked to whichever category is selected.
     - The bottom FIXED (always-on, no open/close) 6-menu: css/kobe-iframe-test.css
-      + js/kobe-iframe-test.js. Hidden while the HERO is on screen; shown,
-      fixed to the bottom of the viewport, once the HERO has been scrolled
-      past (IntersectionObserver on the HERO section drives this).
+      + js/kobe-iframe-test.js. Always visible, fixed to the bottom of the
+      viewport, from page load through HERO, iframe section and footer.
 
   All other existing KOBE content sections (Landmark, Official Guide, Area
   News, Influencer, Ranking, Official SNS, Spoon Collection, Explore Japan,
@@ -181,10 +180,9 @@
 </div><!-- [ /.jtnp-area ] -->
 
 <!-- =========================================================================
-     BOTTOM FIXED 6-MENU. No open/close control — hidden entirely while the
-     HERO is on screen (JS toggles [data-kit-menu-visible] once the HERO has
-     been scrolled past), then stays fixed to the bottom of the viewport for
-     as long as the user remains below the HERO.
+     BOTTOM FIXED 6-MENU. No open/close control, no HERO-based show/hide —
+     always visible, fixed to the bottom of the viewport, for the entire page
+     (HERO included).
      ========================================================================= -->
 <nav class="kit-menu" data-kit-menu aria-label="カテゴリメニュー">
   <div class="kit-menu-grid">
