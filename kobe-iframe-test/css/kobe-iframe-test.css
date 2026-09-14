@@ -61,6 +61,36 @@
   margin: 0 auto;
 }
 
+/* "神戸に戻る" — plain text link back to the /kobe-iframe-test/ entry page,
+   shown directly above the iframe on every detail page. A real link, not a
+   button (no background/border/radius), so it reads as in-page wayfinding
+   rather than another CTA next to the fixed 6-menu. */
+/* #kit-iframe (an ID) is used to out-specificity the shared reset
+   `.jtnp-area-page .jtnp-area a { text-decoration: none; }` in
+   assets/css/jtnp-area.css, which otherwise wins over a class selector here
+   and would strip the underline back off. */
+#kit-iframe .kit-back-link {
+  display: inline-block;
+  margin: 0 0 12px;
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .45);
+  font-family: var(--jtnp-fb);
+  font-size: 12.5px;
+  transition: opacity .2s ease;
+}
+
+.kit-back-link:hover,
+.kit-back-link:focus-visible {
+  opacity: .75;
+}
+
+#kit-iframe[data-kit-color="shop"] .kit-back-link {
+  color: #2B2100;
+  text-shadow: none;
+}
+
 .kit-iframe-wrap {
   border: 1px solid rgba(255, 255, 255, .28);
   border-radius: var(--jtnp-r);
