@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SHOP — JTNP KOBE iframe Navigation Prototype (検証用)</title>
+
+<!--
+  /kobe-iframe-test/shop/ — KOBE iframe navigation prototype, SHOP detail page.
+  =======================================================================
+  STANDALONE VERIFICATION PROTOTYPE ONLY, one of 6 category detail pages
+  under /kobe-iframe-test/ (see ../index.html's entry-page comment for the
+  full 7-page structure and rationale). NOT a WordPress implementation and
+  completely separate from WordPress production, JTNP_Kobe_WP_Migration,
+  the existing HOME prototype and the existing KOBE prototype — none of
+  those are modified by this file.
+
+  Reused, unmodified, from the existing KOBE prototype (Source of Truth for
+  visual design per this task's brief):
+    - APP BAR markup + ../../assets/css/jtnp-area.css + ../../assets/js/jtnp-appbar.js
+    - FOOTER markup + ../../assets/css/jtnp-area.css
+  This page has no HERO and no 神戸ニュース section (entry-page only content).
+
+  This page's only real content is the IFRAME SECTION below, fixed to this
+  one category:
+    SHOP -> https://kansaionepass.com/en/
+  Background color = this category's fixed menu color (previously JS-driven
+  when all 6 categories shared one page; now static, since one page = one
+  category).
+-->
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+JP:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/css/jtnp-area.css">
+<link rel="stylesheet" href="../css/kobe-iframe-test.css">
+</head>
+<body class="jtnp-area-page">
+<div class="jtnp-area" id="main" role="main">
+
+  <!-- =====================================================================
+       APP BAR — reused verbatim from ../../kobe/index.html (unmodified
+       file). No HERO on this page, so the App Bar's own solid background
+       (not HERO-transparent) is what keeps it fully legible here.
+       ===================================================================== -->
+  <section class="blk jtnp-appbar-blk">
+    <div class="appbar" data-jtnp-appbar>
+      <div class="ab-left">
+        <a class="jtnp" href="../../index.html" aria-label="JTNP ホーム">JTNP</a>
+      </div>
+
+      <ul class="ab-nav" id="jtnp-ab-nav" data-jtnp-nav>
+        <li><a href="../../kobe/index.html#jtnp-explore" data-jtnp-nav-link>地図から探す</a></li>
+        <li><a href="../../kobe/index.html#jtnp-collection" data-jtnp-nav-link>エリア一覧</a></li>
+        <li><a href="../../kobe/index.html#jtnp-news" data-jtnp-nav-link>お知らせ</a></li>
+        <li><a href="../../index.html#jtnp-about" data-jtnp-nav-link>サイトについて</a></li>
+      </ul>
+
+      <div class="ab-right">
+        <a class="btn primary sm ab-join" href="#">会員登録</a>
+
+        <a class="btn text ab-login" href="#">
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>
+          ログイン
+        </a>
+
+        <button
+          type="button"
+          class="ab-navtoggle"
+          data-jtnp-nav-toggle
+          aria-expanded="false"
+          aria-controls="jtnp-ab-nav"
+          aria-label="メニューを開く"
+          data-label-open="メニューを開く"
+          data-label-close="メニューを閉じる"
+        >
+          <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       IFRAME SECTION — this page's only real content. The external site is
+       shown as-is, unmodified, inside this iframe; internal navigation
+       inside the external site is left to that site's own links. Section
+       background is this category's fixed color (see 11 in the brief).
+       ===================================================================== -->
+  <section class="blk kit-iframe-blk" id="kit-iframe" data-kit-color="shop">
+    <div class="kit-iframe-wrap">
+      <iframe
+        id="kit-frame"
+        class="kit-frame"
+        src="https://kansaionepass.com/en/"
+        title="外部観光情報サイト（SHOP）"
+        loading="eager"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+    <p class="kit-note">外部サイトをそのまま表示しています。サイト側のセキュリティ設定（X-Frame-Options等）により、この方式で表示できないサイトがあります。</p>
+    <a class="kit-open-link" href="https://kansaionepass.com/en/" target="_blank" rel="noopener noreferrer">SHOPを別タブで開く</a>
+  </section>
+
+  <!-- =====================================================================
+       FOOTER — reused verbatim from ../../kobe/index.html.
+       ===================================================================== -->
+  <section class="blk jtnp-footer-blk">
+    <div class="footer">
+      <p class="ft-logo"><a class="ft-logo-link" href="../../index.html" aria-label="JTNP ホーム">JTNP</a></p>
+      <p class="ft-sub">Japan Tourism Networking Project</p>
+
+      <div class="ft-links">
+        <a class="ft-link" href="../../index.html#jtnp-about">サイトについて</a>
+        <a class="ft-link" href="../../kobe/index.html#jtnp-explore">地図から探す</a>
+        <a class="ft-link" href="../../kobe/index.html#jtnp-news">お知らせ</a>
+        <span class="ft-link">プライバシー</span>
+        <span class="ft-link">お問い合わせ</span>
+      </div>
+
+      <div class="ft-login">
+        <a class="btn primary sm ft-join" href="#">会員登録</a>
+        <a class="btn text ft-loginlink" href="#">
+          <svg class="i" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>
+          ログイン
+        </a>
+      </div>
+
+      <p class="ft-c">&copy; Brainsfarm Co., Ltd.</p>
+    </div>
+  </section>
+
+</div><!-- [ /.jtnp-area ] -->
+
+<!-- =========================================================================
+     BOTTOM FIXED 6-MENU. Plain internal navigation to the 6 category detail
+     pages — always visible, fixed to the bottom of the viewport. SHOP is
+     the active category on this page.
+     ========================================================================= -->
+<nav class="kit-menu" data-kit-menu aria-label="カテゴリメニュー">
+  <div class="kit-menu-grid">
+    <a class="kit-menu-item" href="../see/" data-kit-color="see">
+      <span class="kit-menu-icon" aria-hidden="true">🗺️</span>
+      <span class="kit-menu-text">SEE</span>
+    </a>
+    <a class="kit-menu-item" href="../move/" data-kit-color="move">
+      <span class="kit-menu-icon" aria-hidden="true">🚃</span>
+      <span class="kit-menu-text">MOVE</span>
+    </a>
+    <a class="kit-menu-item" href="../season/" data-kit-color="season">
+      <span class="kit-menu-icon" aria-hidden="true">🌸</span>
+      <span class="kit-menu-text">SEASON</span>
+    </a>
+    <a class="kit-menu-item" href="../stay/" data-kit-color="stay">
+      <span class="kit-menu-icon" aria-hidden="true">🛏️</span>
+      <span class="kit-menu-text">STAY</span>
+    </a>
+    <a class="kit-menu-item" href="../food/" data-kit-color="food">
+      <span class="kit-menu-icon" aria-hidden="true">🍜</span>
+      <span class="kit-menu-text">FOOD</span>
+    </a>
+    <a class="kit-menu-item is-current" href="../shop/" data-kit-color="shop" aria-current="page">
+      <span class="kit-menu-icon" aria-hidden="true">🛍️</span>
+      <span class="kit-menu-text">SHOP</span>
+    </a>
+  </div>
+</nav>
+
+<script src="../../assets/js/jtnp-appbar.js"></script>
+<script src="../js/kobe-iframe-test.js"></script>
+</body>
+</html>

@@ -6,18 +6,19 @@
 <title>JTNP KOBE — iframe Navigation Prototype (検証用)</title>
 
 <!--
-  /kobe-iframe-test/ — KOBE iframe navigation prototype
+  /kobe-iframe-test/ — KOBE iframe navigation prototype, ENTRY PAGE.
   =======================================================================
-  STANDALONE VERIFICATION PROTOTYPE ONLY. This page exists to test whether
-  the "bottom fixed 6-menu -> external site inside an in-page iframe"
-  navigation design (proposed by Yoshida-san) actually works across
-  PC/Tablet/Smartphone on GitHub Pages. It is NOT a WordPress implementation
-  and is completely separate from:
+  STANDALONE VERIFICATION PROTOTYPE ONLY. This page and its 6 sibling
+  category pages (see/, move/, season/, stay/, food/, shop/) test whether
+  the "bottom fixed 6-menu -> external site inside an iframe" navigation
+  design (proposed by Yoshida-san) actually works across PC/Tablet/
+  Smartphone on GitHub Pages. It is NOT a WordPress implementation and is
+  completely separate from:
     - WordPress production
     - JTNP_Kobe_WP_Migration repo
     - the existing HOME prototype (../index.html)
     - the existing KOBE prototype (../kobe/index.html)
-  None of those are modified by this file. This page only ADDS new files
+  None of those are modified by these files. This page only ADDS new files
   under /kobe-iframe-test/.
 
   Reused, unmodified, from the existing KOBE prototype (Source of Truth for
@@ -25,30 +26,39 @@
     - APP BAR markup + ../assets/css/jtnp-area.css + ../assets/js/jtnp-appbar.js
     - HERO markup/video/text + ../assets/css/kobe-hero-override.css +
       ../assets/js/kobe-hero.js (same YouTube-background HERO ../kobe/ uses)
+    - AREA NEWS ("神戸ニュース") markup, reused verbatim from ../kobe/index.html
+      (same heading, card design, data, images, responsive behaviour) —
+      styled entirely by the shared ../assets/css/jtnp-area.css, nothing
+      duplicated here.
     - FOOTER markup + ../assets/css/jtnp-area.css
 
-  New for this page only (does not touch any existing file):
-    - The IFRAME SECTION (this page's only real content). Its background
-      color is linked to whichever category is selected.
-    - The bottom FIXED (always-on, no open/close) 6-menu: css/kobe-iframe-test.css
-      + js/kobe-iframe-test.js. Always visible, fixed to the bottom of the
-      viewport, from page load through HERO, iframe section and footer.
+  7-page structure (this task's brief, superseding the earlier single-page
+  "6 categories inside one iframe section" prototype):
+    /kobe-iframe-test/         <- this page: App Bar, HERO, 神戸ニュース, Footer.
+                                  No iframe here.
+    /kobe-iframe-test/see/     <- App Bar, iframe (SEE), note + external
+    /kobe-iframe-test/move/       link, Footer. No HERO, no 神戸ニュース.
+    /kobe-iframe-test/season/
+    /kobe-iframe-test/stay/
+    /kobe-iframe-test/food/
+    /kobe-iframe-test/shop/
 
-  All other existing KOBE content sections (Landmark, Official Guide, Area
-  News, Influencer, Ranking, Official SNS, Spoon Collection, Explore Japan,
-  Area Spoon / Where to Buy, Member CTA) are intentionally NOT included here
-  — this page's only content is the iframe section, per this task's brief.
+  The bottom FIXED 6-menu (css/kobe-iframe-test.css + js/kobe-iframe-test.js)
+  is shared by all 7 pages and is now plain internal navigation to the 6
+  detail pages above — it no longer swaps an iframe's src on this same page.
+  Always visible, fixed to the bottom of the viewport, from page load
+  through every section including HERO.
 
-  Confirmed 6-menu (final spec, overrides anything shown in the reference
-  PDF "QRコードサイトイメージ.pdf" — that PDF is layout/flow reference only,
-  not the Source of Truth for labels/URLs):
-    SEE    -> https://www.hyogo-tourism.jp/world/
-    MOVE   -> https://www.hyogo-tourism.jp/world/access/
-    SEASON -> https://www.hyogo-tourism.jp/world/feature/
-    STAY   -> https://www.j-hotel.or.jp/en/?wonv=en
-    FOOD   -> https://savorjapan.com/
-    SHOP   -> https://kansaionepass.com/en/
-  Initial iframe src on load = SEE.
+  Confirmed 6-menu destinations (final spec, overrides anything shown in the
+  reference PDF "QRコードサイトイメージ.pdf" — that PDF is layout/flow reference
+  only, not the Source of Truth for labels/URLs). Each destination page shows
+  exactly one external site in an iframe:
+    SEE    -> see/    -> https://www.hyogo-tourism.jp/world/
+    MOVE   -> move/   -> https://www.hyogo-tourism.jp/world/access/
+    SEASON -> season/ -> https://www.hyogo-tourism.jp/world/feature/
+    STAY   -> stay/   -> https://www.j-hotel.or.jp/en/?wonv=en
+    FOOD   -> food/   -> https://savorjapan.com/
+    SHOP   -> shop/   -> https://kansaionepass.com/en/
 -->
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+JP:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
@@ -103,8 +113,9 @@
 
   <!-- =====================================================================
        HERO — reused verbatim from ../kobe/index.html (same video/text/CSS/
-       JS). Only the scrollcue target changes (-> the iframe section below,
-       since this page has no Landmark section).
+       JS). Not modified for this task; only the scrollcue target changes
+       (-> the 神戸ニュース section below, since this page has no Landmark
+       section).
        ===================================================================== -->
   <section class="blk jtnp-hero-blk jtnp-kobe-hero-blk" id="kit-hero">
     <div class="hero" data-hero>
@@ -123,7 +134,7 @@
         <p class="khero-lead">Kobe is a port city where the mountains and sea are close at hand. With history and nature all around, the waterfront glows beautifully at night.</p>
       </div>
 
-      <a class="scrollcue" href="#kit-iframe">
+      <a class="scrollcue" href="#jtnp-news">
         <span>神戸を知る</span>
         <i></i>
       </a>
@@ -131,22 +142,52 @@
   </section>
 
   <!-- =====================================================================
-       IFRAME SECTION — new, this page's only real content. External sites
-       are shown as-is, unmodified, inside this iframe; internal navigation
-       inside the external site is left to that site's own links.
+       AREA NEWS ("神戸ニュース") — reused verbatim from ../kobe/index.html
+       (template-parts/jtnp/news.php + news-item.php; same heading, card
+       design, data and images). Replaces the old iframe section: the entry
+       page shows no iframe at all. Styled entirely by the shared
+       ../assets/css/jtnp-area.css, nothing added here.
        ===================================================================== -->
-  <section class="blk kit-iframe-blk" id="kit-iframe" data-kit-color="see">
-    <div class="kit-iframe-wrap">
-      <iframe
-        id="kit-frame"
-        class="kit-frame"
-        src="https://www.hyogo-tourism.jp/world/"
-        title="外部観光情報サイト"
-        loading="eager"
-        referrerpolicy="no-referrer-when-downgrade"
-      ></iframe>
+  <section class="blk jtnp-news-blk" id="jtnp-news">
+    <div class="sec sec-news">
+      <p class="eyebrow">最新情報</p>
+      <h2 class="sec-t">神戸ニュース</h2>
+
+      <div class="newslist">
+        <a class="news" href="#">
+          <img class="rimg nw-i" src="../assets/images/content/kobe-night.jpg" alt="神戸ポートタワーの屋上デッキ、夏季の営業時間を延長" loading="lazy">
+          <span class="nw-b">
+            <span class="nw-d">
+              <time datetime="2026-08-18">08/18/2026</time>
+            </span>
+            <b>神戸ポートタワーの屋上デッキ、夏季の営業時間を延長</b>
+          </span>
+          <span class="nw-a" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></span>
+        </a>
+        <a class="news" href="#">
+          <img class="rimg nw-i" src="../assets/images/content/spoon.jpg" alt="神戸スプーン、ハーバーランド umie で取り扱い開始" loading="lazy">
+          <span class="nw-b">
+            <span class="nw-d">
+              <time datetime="2026-08-09">08/09/2026</time>
+            </span>
+            <b>神戸スプーン、ハーバーランド umie で取り扱い開始</b>
+          </span>
+          <span class="nw-a" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></span>
+        </a>
+        <a class="news" href="#">
+          <img class="rimg nw-i" src="../assets/images/content/gourmet.jpg" alt="英語で注文できる神戸牛のお店5選" loading="lazy">
+          <span class="nw-b">
+            <span class="nw-d">
+              <time datetime="2026-07-28">07/28/2026</time>
+            </span>
+            <b>英語で注文できる神戸牛のお店5選</b>
+          </span>
+          <span class="nw-a" aria-hidden="true"><svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></span>
+        </a>
+      </div>
+
+      <a class="btn ghost wide" href="#">ニュース一覧を見る</a>
     </div>
-    <p class="kit-note">外部サイトをそのまま表示しています。サイト側のセキュリティ設定（X-Frame-Options等）により、この方式で表示できないサイトがあります。</p>
   </section>
 
   <!-- =====================================================================
@@ -180,36 +221,38 @@
 </div><!-- [ /.jtnp-area ] -->
 
 <!-- =========================================================================
-     BOTTOM FIXED 6-MENU. No open/close control, no HERO-based show/hide —
-     always visible, fixed to the bottom of the viewport, for the entire page
-     (HERO included).
+     BOTTOM FIXED 6-MENU. Plain internal navigation to the 6 category detail
+     pages (no in-page iframe src switching, no open/close control, no
+     HERO-based show/hide) — always visible, fixed to the bottom of the
+     viewport, for the entire page. No category is "active" on this entry
+     page since no category has been chosen yet.
      ========================================================================= -->
 <nav class="kit-menu" data-kit-menu aria-label="カテゴリメニュー">
   <div class="kit-menu-grid">
-    <button type="button" class="kit-menu-item is-current" data-kit-item data-kit-src="https://www.hyogo-tourism.jp/world/" data-kit-label="SEE" data-kit-color="see" aria-pressed="true">
+    <a class="kit-menu-item" href="see/" data-kit-color="see">
       <span class="kit-menu-icon" aria-hidden="true">🗺️</span>
       <span class="kit-menu-text">SEE</span>
-    </button>
-    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://www.hyogo-tourism.jp/world/access/" data-kit-label="MOVE" data-kit-color="move" aria-pressed="false">
+    </a>
+    <a class="kit-menu-item" href="move/" data-kit-color="move">
       <span class="kit-menu-icon" aria-hidden="true">🚃</span>
       <span class="kit-menu-text">MOVE</span>
-    </button>
-    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://www.hyogo-tourism.jp/world/feature/" data-kit-label="SEASON" data-kit-color="season" aria-pressed="false">
+    </a>
+    <a class="kit-menu-item" href="season/" data-kit-color="season">
       <span class="kit-menu-icon" aria-hidden="true">🌸</span>
       <span class="kit-menu-text">SEASON</span>
-    </button>
-    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://www.j-hotel.or.jp/en/?wonv=en" data-kit-label="STAY" data-kit-color="stay" aria-pressed="false">
+    </a>
+    <a class="kit-menu-item" href="stay/" data-kit-color="stay">
       <span class="kit-menu-icon" aria-hidden="true">🛏️</span>
       <span class="kit-menu-text">STAY</span>
-    </button>
-    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://savorjapan.com/" data-kit-label="FOOD" data-kit-color="food" aria-pressed="false">
+    </a>
+    <a class="kit-menu-item" href="food/" data-kit-color="food">
       <span class="kit-menu-icon" aria-hidden="true">🍜</span>
       <span class="kit-menu-text">FOOD</span>
-    </button>
-    <button type="button" class="kit-menu-item" data-kit-item data-kit-src="https://kansaionepass.com/en/" data-kit-label="SHOP" data-kit-color="shop" aria-pressed="false">
+    </a>
+    <a class="kit-menu-item" href="shop/" data-kit-color="shop">
       <span class="kit-menu-icon" aria-hidden="true">🛍️</span>
       <span class="kit-menu-text">SHOP</span>
-    </button>
+    </a>
   </div>
 </nav>
 
